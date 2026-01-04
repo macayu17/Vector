@@ -34,13 +34,12 @@ export interface Application {
 }
 
 export const APPLICATION_STATUSES: ApplicationStatus[] = [
-  'WISHLIST',
   'APPLIED',
   'OA_RECEIVED',
   'INTERVIEW_SCHEDULED',
-  'OFFER',
   'REJECTED',
   'STALLED',
+  'WISHLIST',
 ];
 
 export const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string }> = {
