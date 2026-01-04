@@ -88,7 +88,7 @@ export const mockApplications: Application[] = [
         jobUrl: 'https://flipkart.com/careers',
         location: 'Bangalore, India',
         remotePolicy: 'On-site',
-        status: 'OFFER',
+        status: 'INTERVIEW_SCHEDULED',
         priority: 'HIGH',
         jobType: 'INTERNSHIP',
         appliedDate: daysAgo(30),
