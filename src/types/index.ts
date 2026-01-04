@@ -1,11 +1,10 @@
 export type ApplicationStatus =
-  | 'WISHLIST'
   | 'APPLIED'
   | 'OA_RECEIVED'
   | 'INTERVIEW_SCHEDULED'
-  | 'OFFER'
   | 'REJECTED'
-  | 'STALLED';
+  | 'STALLED'
+  | 'WISHLIST';
 
 export type Priority = 'LOW' | 'MEDIUM' | 'HIGH';
 
@@ -43,11 +42,10 @@ export const APPLICATION_STATUSES: ApplicationStatus[] = [
 ];
 
 export const STATUS_CONFIG: Record<ApplicationStatus, { label: string; color: string }> = {
-  WISHLIST: { label: 'Wishlist', color: 'bg-slate-500' },
   APPLIED: { label: 'Applied', color: 'bg-blue-500' },
   OA_RECEIVED: { label: 'OA Received', color: 'bg-purple-500' },
   INTERVIEW_SCHEDULED: { label: 'Interview', color: 'bg-orange-500' },
-  OFFER: { label: 'Offer', color: 'bg-green-500' },
   REJECTED: { label: 'Rejected', color: 'bg-red-500' },
   STALLED: { label: 'Stalled', color: 'bg-yellow-500' },
+  WISHLIST: { label: 'Wishlist', color: 'bg-slate-500' },
 };

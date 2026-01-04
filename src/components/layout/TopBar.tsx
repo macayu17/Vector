@@ -1,12 +1,14 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Search, Moon, Sun, Plus, Bell } from 'lucide-react';
+import { useRouter } from 'next/navigation';
+import { Search, Moon, Sun, Plus, Bell, LogOut, Settings, User } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Badge } from '@/components/ui/badge';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useAuth } from '@/components/auth/AuthProvider';
 import {
     DropdownMenu,
     DropdownMenuContent,
@@ -22,6 +24,8 @@ interface TopBarProps {
 
 export function TopBar({ onAddClick }: TopBarProps) {
     const { settings } = useSettingsStore();
+    const { user, signOut } = useAuth();
+    const router = useRouter();
     const [darkMode, setDarkMode] = useState(false);
     const [searchQuery, setSearchQuery] = useState('');
     const [isMounted, setIsMounted] = useState(false);
@@ -41,12 +45,21 @@ export function TopBar({ onAddClick }: TopBarProps) {
         document.documentElement.classList.toggle('dark', newDarkMode);
     };
 
-    // Safe user init
-    const firstName = settings?.firstName || 'User';
-    const lastName = settings?.lastName || '';
-    const fullName = `${firstName} ${lastName}`.trim();
-    const initials = `${firstName[0] || ''}${lastName[0] || ''}`.toUpperCase();
-    const email = settings?.email || 'user@example.com';
+    const handleLogout = async () => {
+        await signOut();
+        router.push('/login');
+    };
+
+    // User info from auth or settings
+    const email = user?.email || settings?.email || 'user@example.com';
+    const displayName = user?.user_metadata?.full_name ||
+        `${settings?.firstName || 'User'} ${settings?.lastName || ''}`.trim();
+    const initials = displayName
+        .split(' ')
+        .map((n: string) => n[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2) || 'U';
 
     if (!isMounted) return <div className="h-16 border-b border-border/10 glass" />;
 
@@ -89,7 +102,7 @@ export function TopBar({ onAddClick }: TopBarProps) {
                     <DropdownMenuTrigger asChild>
                         <Button variant="ghost" className="h-10 w-10 rounded-full p-0 ring-offset-2 ring-offset-background transition-all hover:ring-2 hover:ring-primary/50">
                             <Avatar className="h-9 w-9 border border-primary/20">
-                                <AvatarImage src="/avatar.png" alt={fullName} />
+                                <AvatarImage src={user?.user_metadata?.avatar_url || "/avatar.png"} alt={displayName} />
                                 <AvatarFallback className="bg-gradient-to-br from-primary to-indigo-600 text-white text-xs font-bold">
                                     {initials}
                                 </AvatarFallback>
@@ -99,19 +112,24 @@ export function TopBar({ onAddClick }: TopBarProps) {
                     <DropdownMenuContent align="end" className="w-56 glass-card p-2 mt-2">
                         <DropdownMenuLabel className="px-2 py-2">
                             <div className="flex flex-col gap-1">
-                                <span className="font-semibold text-sm">{fullName}</span>
+                                <span className="font-semibold text-sm">{displayName}</span>
                                 <span className="text-xs text-muted-foreground">{email}</span>
                             </div>
                         </DropdownMenuLabel>
                         <DropdownMenuSeparator className="bg-primary/10" />
-                        <DropdownMenuItem className="rounded-lg focus:bg-primary/10 focus:text-primary cursor-pointer">
-                            Profile
-                        </DropdownMenuItem>
-                        <DropdownMenuItem className="rounded-lg focus:bg-primary/10 focus:text-primary cursor-pointer">
+                        <DropdownMenuItem
+                            className="rounded-lg focus:bg-primary/10 focus:text-primary cursor-pointer"
+                            onClick={() => router.push('/settings')}
+                        >
+                            <Settings className="w-4 h-4 mr-2" />
                             Settings
                         </DropdownMenuItem>
                         <DropdownMenuSeparator className="bg-primary/10" />
-                        <DropdownMenuItem className="text-destructive rounded-lg focus:bg-destructive/10 focus:text-destructive cursor-pointer">
+                        <DropdownMenuItem
+                            className="text-destructive rounded-lg focus:bg-destructive/10 focus:text-destructive cursor-pointer"
+                            onClick={handleLogout}
+                        >
+                            <LogOut className="w-4 h-4 mr-2" />
                             Log out
                         </DropdownMenuItem>
                     </DropdownMenuContent>
@@ -120,3 +138,4 @@ export function TopBar({ onAddClick }: TopBarProps) {
         </header>
     );
 }
+

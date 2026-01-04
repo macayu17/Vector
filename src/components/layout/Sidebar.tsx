@@ -28,7 +28,7 @@ export function Sidebar() {
     const activeCount = applications.filter(
         app => !['REJECTED', 'STALLED', 'WISHLIST'].includes(app.status)
     ).length;
-    const offersCount = applications.filter(app => app.status === 'OFFER').length;
+    const interviewsCount = applications.filter(app => app.status === 'INTERVIEW_SCHEDULED').length;
 
     return (
         <aside className="flex flex-col w-[220px] h-screen glass border-r border-border/50 relative z-10">
@@ -83,8 +83,8 @@ export function Sidebar() {
                         <p className="text-[10px] text-muted-foreground">Active</p>
                     </div>
                     <div className="p-2 rounded-lg bg-background/30 text-center">
-                        <p className="text-lg font-bold text-green-500">{offersCount}</p>
-                        <p className="text-[10px] text-muted-foreground">Offers</p>
+                        <p className="text-lg font-bold text-orange-500">{interviewsCount}</p>
+                        <p className="text-[10px] text-muted-foreground">Interviews</p>
                     </div>
                 </div>
             </div>

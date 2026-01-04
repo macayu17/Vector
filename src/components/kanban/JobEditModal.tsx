@@ -262,13 +262,12 @@ export function JobEditModal({ application, open, onClose }: JobEditModalProps) 
                                                 <SelectValue />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="WISHLIST">Wishlist</SelectItem>
                                                 <SelectItem value="APPLIED">Applied</SelectItem>
                                                 <SelectItem value="OA_RECEIVED">OA Received</SelectItem>
                                                 <SelectItem value="INTERVIEW_SCHEDULED">Interview</SelectItem>
-                                                <SelectItem value="OFFER">Offer</SelectItem>
                                                 <SelectItem value="REJECTED">Rejected</SelectItem>
                                                 <SelectItem value="STALLED">Stalled</SelectItem>
+                                                <SelectItem value="WISHLIST">Wishlist</SelectItem>
                                             </SelectContent>
                                         </Select>
                                     </div>

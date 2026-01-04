@@ -21,11 +21,11 @@ export default function AnalyticsPage() {
     const total = applications.length;
     const applied = applications.filter(a => a.status !== 'WISHLIST').length;
     const interviews = applications.filter(a => a.status === 'INTERVIEW_SCHEDULED').length;
-    const offers = applications.filter(a => a.status === 'OFFER').length;
+    const stalled = applications.filter(a => a.status === 'STALLED').length;
     const rejected = applications.filter(a => a.status === 'REJECTED').length;
 
     const conversionRate = applied > 0 ? Math.round((interviews / applied) * 100) : 0;
-    const offerRate = applied > 0 ? Math.round((offers / applied) * 100) : 0;
+    const successRate = applied > 0 ? Math.round(((applied - rejected - stalled) / applied) * 100) : 0;
 
     // Applications per status
     const statusCounts = APPLICATION_STATUSES.map(status => ({
@@ -50,8 +50,8 @@ export default function AnalyticsPage() {
             bgColor: 'bg-blue-500/10'
         },
         {
-            label: 'Offer Rate',
-            value: `${offerRate}%`,
+            label: 'Active Rate',
+            value: `${successRate}%`,
             icon: CheckCircle2,
             color: 'text-emerald-500',
             bgColor: 'bg-emerald-500/10'

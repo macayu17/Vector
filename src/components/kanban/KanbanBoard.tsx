@@ -21,15 +21,14 @@ import { AddJobModal } from './AddJobModal';
 import { Button } from '@/components/ui/button';
 import { Plus, Loader2 } from 'lucide-react';
 
-// Status tab configuration
+// Status tab configuration - matches APPLICATION_STATUSES order
 const STATUS_TABS: { status: ApplicationStatus; icon: string }[] = [
-    { status: 'WISHLIST', icon: '📋' },
     { status: 'APPLIED', icon: '📤' },
     { status: 'OA_RECEIVED', icon: '📝' },
     { status: 'INTERVIEW_SCHEDULED', icon: '🎯' },
-    { status: 'OFFER', icon: '🎉' },
     { status: 'REJECTED', icon: '❌' },
     { status: 'STALLED', icon: '⏸️' },
+    { status: 'WISHLIST', icon: '📋' },
 ];
 
 // Drop zone component for moving cards
@@ -113,7 +112,7 @@ function DroppableArea({
 
 export function KanbanBoard() {
     const { applications, moveApplication } = useApplicationStore();
-    const [activeTab, setActiveTab] = useState<ApplicationStatus>('WISHLIST');
+    const [activeTab, setActiveTab] = useState<ApplicationStatus>('APPLIED');
     const [activeApplication, setActiveApplication] = useState<Application | null>(null);
     const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
     const [isEditModalOpen, setIsEditModalOpen] = useState(false);

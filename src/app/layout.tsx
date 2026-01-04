@@ -1,9 +1,7 @@
 import type { Metadata } from "next";
 import { Geist, Geist_Mono } from "next/font/google";
 import "./globals.css";
-import { Sidebar } from "@/components/layout/Sidebar";
-import { TopBar } from "@/components/layout/TopBar";
-import LetterGlitch from "@/components/backgrounds/LetterGlitch";
+import { AuthProvider } from "@/components/auth/AuthProvider";
 
 const geistSans = Geist({
   variable: "--font-geist-sans",
@@ -33,21 +31,14 @@ export default function RootLayout({
       <body
         className={`${geistSans.variable} ${geistMono.variable} antialiased`}
       >
-        <div className="relative flex h-screen overflow-hidden bg-background text-foreground">
-          <LetterGlitch
-            glitchColors={['#a855f7', '#c084fc', '#e879f9']}
-            glitchSpeed={50}
-            centerVignette={false}
-            outerVignette={true}
-            smooth={true}
-          />
-          <Sidebar />
-          <div className="flex flex-col flex-1 overflow-hidden relative z-10">
-            <TopBar />
+        <AuthProvider>
+          <div className="relative min-h-screen bg-background text-foreground">
             {children}
           </div>
-        </div>
+        </AuthProvider>
       </body>
     </html>
   );
 }
+
+
