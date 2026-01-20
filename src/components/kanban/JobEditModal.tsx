@@ -1,13 +1,13 @@
 'use client';
 
 import { useState, useEffect } from 'react';
-import { Application, Priority, JobType } from '@/types';
+import { Application, Tag } from '@/types';
 import { useApplicationStore } from '@/store/applicationStore';
+import { useResumeStore } from '@/store/resumeStore';
 import { getCompanyDomain } from '@/constants/companies';
 import {
     Dialog,
     DialogContent,
-    DialogHeader,
     DialogTitle,
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
@@ -27,10 +27,10 @@ import {
     Trash2,
     MapPin,
     Globe,
-    Banknote,
-    Briefcase,
+    FileText,
     X
 } from 'lucide-react';
+import { TagSelector } from './TagSelector';
 
 interface JobEditModalProps {
     application: Application | null;
@@ -40,14 +40,23 @@ interface JobEditModalProps {
 
 export function JobEditModal({ application, open, onClose }: JobEditModalProps) {
     const { updateApplication, deleteApplication } = useApplicationStore();
+    const { resumes, fetchResumes } = useResumeStore();
     const [activeTab, setActiveTab] = useState('details');
     const [formData, setFormData] = useState<Partial<Application>>({});
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [confirmDelete, setConfirmDelete] = useState(false);
     const [logoError, setLogoError] = useState(false);
 
     useEffect(() => {
+        if (open) {
+            fetchResumes();
+        }
+    }, [open, fetchResumes]);
+
+    useEffect(() => {
         if (application) {
             setFormData({ ...application });
+            setSelectedTags(application.tags || []);
             setLogoError(false);
         }
     }, [application]);
@@ -58,7 +67,7 @@ export function JobEditModal({ application, open, onClose }: JobEditModalProps) 
 
     const handleSave = () => {
         if (application && formData) {
-            updateApplication(application.id, formData);
+            updateApplication(application.id, { ...formData, tags: selectedTags });
             onClose();
         }
     };
@@ -288,6 +297,44 @@ export function JobEditModal({ application, open, onClose }: JobEditModalProps) 
                                             </SelectContent>
                                         </Select>
                                     </div>
+                                </div>
+
+                                {/* Resume Selector */}
+                                {resumes.length > 0 && (
+                                    <div className="space-y-2">
+                                        <Label className="flex items-center gap-2">
+                                            <FileText className="h-4 w-4" />
+                                            Resume Used
+                                        </Label>
+                                        <Select
+                                            value={formData.resumeId || ''}
+                                            onValueChange={(value) => updateField('resumeId', value || undefined)}
+                                        >
+                                            <SelectTrigger className="bg-background/50">
+                                                <SelectValue placeholder="Select resume..." />
+                                            </SelectTrigger>
+                                            <SelectContent>
+                                                <SelectItem value="">None</SelectItem>
+                                                {resumes.map((resume) => (
+                                                    <SelectItem key={resume.id} value={resume.id}>
+                                                        {resume.name}
+                                                        {resume.isDefault && ' (Default)'}
+                                                        {resume.version && ` - ${resume.version}`}
+                                                    </SelectItem>
+                                                ))}
+                                            </SelectContent>
+                                        </Select>
+                                    </div>
+                                )}
+
+                                {/* Tags */}
+                                <div className="space-y-2">
+                                    <Label>Tags</Label>
+                                    <TagSelector
+                                        selectedTags={selectedTags}
+                                        onTagsChange={setSelectedTags}
+                                        applicationId={application.id}
+                                    />
                                 </div>
 
                                 <div className="space-y-2">

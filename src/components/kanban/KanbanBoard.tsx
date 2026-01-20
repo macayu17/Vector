@@ -15,11 +15,15 @@ import {
 import { SortableContext, verticalListSortingStrategy } from '@dnd-kit/sortable';
 import { APPLICATION_STATUSES, ApplicationStatus, Application, STATUS_CONFIG } from '@/types';
 import { useApplicationStore } from '@/store/applicationStore';
+import { useTagStore } from '@/store/tagStore';
 import { JobCard } from './JobCard';
 import { JobEditModal } from './JobEditModal';
 import { AddJobModal } from './AddJobModal';
+import { SearchBar } from './SearchBar';
+import { FilterPanel } from './FilterPanel';
+import { BulkActionBar } from './BulkActionBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2 } from 'lucide-react';
+import { Plus, Loader2, CheckSquare, XSquare } from 'lucide-react';
 
 // Status tab configuration - matches APPLICATION_STATUSES order
 const STATUS_TABS: { status: ApplicationStatus; icon: string }[] = [
@@ -111,7 +115,16 @@ function DroppableArea({
 }
 
 export function KanbanBoard() {
-    const { applications, moveApplication } = useApplicationStore();
+    const {
+        applications,
+        moveApplication,
+        getFilteredApplications,
+        selectedIds,
+        selectAll,
+        clearSelection,
+        filters
+    } = useApplicationStore();
+    const { fetchTags } = useTagStore();
     const [activeTab, setActiveTab] = useState<ApplicationStatus>('APPLIED');
     const [activeApplication, setActiveApplication] = useState<Application | null>(null);
     const [selectedApplication, setSelectedApplication] = useState<Application | null>(null);
@@ -122,7 +135,8 @@ export function KanbanBoard() {
     // Fix hydration mismatch by only rendering DndContext on client
     useEffect(() => {
         setIsMounted(true);
-    }, []);
+        fetchTags();
+    }, [fetchTags]);
 
     const sensors = useSensors(
         useSensor(PointerSensor, {
@@ -132,10 +146,18 @@ export function KanbanBoard() {
         })
     );
 
-    const getCount = (status: ApplicationStatus) =>
-        applications.filter((app) => app.status === status).length;
+    // Get filtered applications
+    const filteredApplications = getFilteredApplications();
+    const hasActiveFilters = filters.searchQuery ||
+        filters.statuses.length > 0 ||
+        filters.priorities.length > 0 ||
+        filters.jobTypes.length > 0 ||
+        filters.tags.length > 0;
 
-    const activeApplications = applications.filter((app) => app.status === activeTab);
+    const getCount = (status: ApplicationStatus) =>
+        filteredApplications.filter((app) => app.status === status).length;
+
+    const activeApplications = filteredApplications.filter((app) => app.status === activeTab);
 
     const handleDragStart = (event: DragStartEvent) => {
         const { active } = event;
@@ -168,6 +190,11 @@ export function KanbanBoard() {
         setIsEditModalOpen(true);
     };
 
+    const handleSelectAllVisible = () => {
+        const ids = activeApplications.map(app => app.id);
+        selectAll(ids);
+    };
+
     // Show loading state until client-side hydration is complete
     if (!isMounted) {
         return (
@@ -179,6 +206,39 @@ export function KanbanBoard() {
 
     return (
         <>
+            {/* Search and Filter Bar */}
+            <div className="flex items-center gap-4 mb-6 flex-wrap">
+                <SearchBar />
+                <FilterPanel />
+
+                {/* Select all / Deselect buttons */}
+                {activeApplications.length > 0 && (
+                    <div className="flex items-center gap-2 ml-auto">
+                        {selectedIds.length === 0 ? (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="gap-2 text-muted-foreground"
+                                onClick={handleSelectAllVisible}
+                            >
+                                <CheckSquare className="h-4 w-4" />
+                                Select all
+                            </Button>
+                        ) : (
+                            <Button
+                                variant="ghost"
+                                size="sm"
+                                className="gap-2 text-muted-foreground"
+                                onClick={clearSelection}
+                            >
+                                <XSquare className="h-4 w-4" />
+                                Deselect ({selectedIds.length})
+                            </Button>
+                        )}
+                    </div>
+                )}
+            </div>
+
             <DndContext
                 sensors={sensors}
                 collisionDetection={closestCenter}
@@ -227,6 +287,9 @@ export function KanbanBoard() {
                         <h3 className="text-lg font-semibold flex items-center gap-2">
                             <span>{STATUS_TABS.find(t => t.status === activeTab)?.icon}</span>
                             {STATUS_CONFIG[activeTab].label}
+                            {hasActiveFilters && (
+                                <span className="text-xs text-muted-foreground font-normal">(filtered)</span>
+                            )}
                         </h3>
                         <p className="text-sm text-muted-foreground">
                             {activeApplications.length} {activeApplications.length === 1 ? 'application' : 'applications'}
@@ -265,6 +328,9 @@ export function KanbanBoard() {
                     ) : null}
                 </DragOverlay>
             </DndContext>
+
+            {/* Bulk Action Bar */}
+            <BulkActionBar />
 
             {/* Modals */}
             <JobEditModal

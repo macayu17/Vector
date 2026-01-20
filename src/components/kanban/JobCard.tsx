@@ -1,24 +1,27 @@
 'use client';
 
-import { useState } from 'react';
+import { useState, useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Application } from '@/types';
+import { useApplicationStore } from '@/store/applicationStore';
 import { getCompanyDomain } from '@/constants/companies';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { TagBadge } from '@/components/ui/tag-badge';
 import {
     MapPin,
     Calendar,
     IndianRupee,
-    AlertCircle,
     ExternalLink,
-    GripVertical
+    GripVertical,
+    Check
 } from 'lucide-react';
 
 interface JobCardProps {
     application: Application;
     onClick?: () => void;
+    selectionMode?: boolean;
 }
 
 const isStalled = (updatedAt: Date): boolean => {
@@ -79,8 +82,10 @@ const getJobTypeLabel = (type: string) => {
     }
 };
 
-export function JobCard({ application, onClick }: JobCardProps) {
+export function JobCard({ application, onClick, selectionMode = false }: JobCardProps) {
     const [logoError, setLogoError] = useState(false);
+    const { selectedIds, toggleSelection, isSelected } = useApplicationStore();
+    const isCardSelected = isSelected(application.id);
 
     const {
         attributes,
@@ -100,23 +105,57 @@ export function JobCard({ application, onClick }: JobCardProps) {
     const salaryDisplay = formatSalary(application.salaryMin, application.salaryMax);
     const logoUrl = getLogoUrl(application.companyName);
 
+    const handleClick = useCallback((e: React.MouseEvent) => {
+        // If shift key is held or we're in selection mode, toggle selection
+        if (e.shiftKey || selectedIds.length > 0) {
+            e.preventDefault();
+            e.stopPropagation();
+            toggleSelection(application.id);
+        } else if (onClick) {
+            onClick();
+        }
+    }, [onClick, selectedIds.length, toggleSelection, application.id]);
+
+    const handleCheckboxClick = useCallback((e: React.MouseEvent) => {
+        e.preventDefault();
+        e.stopPropagation();
+        toggleSelection(application.id);
+    }, [toggleSelection, application.id]);
+
     return (
         <Card
             ref={setNodeRef}
             style={style}
-            onClick={onClick}
+            onClick={handleClick}
             className={`
         group cursor-pointer glass-card hover-glow overflow-hidden relative
         transition-all duration-300 ease-out mb-3
         ${isDragging ? 'opacity-60 shadow-xl scale-[1.02] rotate-1 z-50' : ''}
         ${stalled ? 'border-l-4 border-l-amber-500/50' : ''}
+        ${isCardSelected ? 'ring-2 ring-primary border-primary/50' : ''}
       `}
             {...attributes}
             {...listeners}
         >
             <CardContent className="p-4 relative">
+                {/* Selection checkbox */}
+                <button
+                    onClick={handleCheckboxClick}
+                    className={`
+                        absolute top-3 left-3 w-5 h-5 rounded border-2 
+                        flex items-center justify-center transition-all z-10
+                        ${isCardSelected
+                            ? 'bg-primary border-primary text-primary-foreground'
+                            : 'border-border/60 bg-background/50 opacity-0 group-hover:opacity-100'
+                        }
+                        ${selectedIds.length > 0 ? 'opacity-100' : ''}
+                    `}
+                >
+                    {isCardSelected && <Check className="h-3 w-3" />}
+                </button>
+
                 {/* Header */}
-                <div className="flex items-start gap-3 mb-3">
+                <div className={`flex items-start gap-3 mb-3 ${selectedIds.length > 0 || isCardSelected ? 'pl-7' : ''}`}>
                     {/* Company Logo */}
                     <div className="relative flex-shrink-0 w-11 h-11 rounded-lg bg-background flex items-center justify-center p-1.5 border border-border/50">
                         {!logoError ? (
@@ -173,6 +212,21 @@ export function JobCard({ application, onClick }: JobCardProps) {
                     <Badge className={`text-[10px] h-5 px-1.5 border hover:bg-transparent shadow-none ${getPriorityColor(application.priority)}`}>
                         {application.priority.toLowerCase()}
                     </Badge>
+
+                    {/* Application tags */}
+                    {application.tags?.slice(0, 2).map((tag) => (
+                        <TagBadge
+                            key={tag.id}
+                            name={tag.name}
+                            color={tag.color}
+                            size="sm"
+                        />
+                    ))}
+                    {(application.tags?.length ?? 0) > 2 && (
+                        <span className="text-[10px] text-muted-foreground px-1">
+                            +{(application.tags?.length ?? 0) - 2}
+                        </span>
+                    )}
                 </div>
 
                 {/* Footer Info */}

@@ -7,14 +7,15 @@ import {
     BarChart3,
     Archive,
     Settings,
-    Briefcase,
     Calendar,
+    FileText,
 } from 'lucide-react';
 import { useApplicationStore } from '@/store/applicationStore';
 
 const navigation = [
     { name: 'Dashboard', href: '/dashboard', icon: LayoutDashboard },
     { name: 'Calendar', href: '/calendar', icon: Calendar },
+    { name: 'Resumes', href: '/resumes', icon: FileText },
     { name: 'Analytics', href: '/analytics', icon: BarChart3 },
     { name: 'Archive', href: '/archive', icon: Archive },
     { name: 'Settings', href: '/settings', icon: Settings },

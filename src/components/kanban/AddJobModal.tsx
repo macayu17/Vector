@@ -1,10 +1,10 @@
 'use client';
 
-import { useState } from 'react';
-import { v4 as uuidv4 } from 'uuid';
+import { useState, useEffect } from 'react';
 import { useApplicationStore } from '@/store/applicationStore';
-import { useSettingsStore } from '@/store/settingsStore';
-import { Application, ApplicationStatus, JobType } from '@/types';
+import { useResumeStore } from '@/store/resumeStore';
+import { useTagStore } from '@/store/tagStore';
+import { Application, ApplicationStatus, JobType, Tag } from '@/types';
 import { TOP_100_COMPANIES } from '@/constants/companies';
 import {
     Dialog,
@@ -22,7 +22,7 @@ import {
     SelectTrigger,
     SelectValue,
 } from '@/components/ui/select';
-import { Building2, MapPin, Search } from 'lucide-react';
+import { Building2, MapPin, FileText } from 'lucide-react';
 import {
     Command,
     CommandEmpty,
@@ -36,6 +36,7 @@ import {
     PopoverContent,
     PopoverTrigger,
 } from '@/components/ui/popover';
+import { TagSelector } from './TagSelector';
 
 interface AddJobModalProps {
     open: boolean;
@@ -45,7 +46,8 @@ interface AddJobModalProps {
 
 export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJobModalProps) {
     const { addApplication } = useApplicationStore();
-    const { settings } = useSettingsStore();
+    const { resumes, fetchResumes } = useResumeStore();
+    const { addTagToApplication } = useTagStore();
 
     const [formData, setFormData] = useState({
         companyName: '',
@@ -57,36 +59,54 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
         jobType: 'FULL_TIME' as JobType,
         salaryMin: '',
         salaryMax: '',
+        resumeId: '',
     });
-
+    const [selectedTags, setSelectedTags] = useState<Tag[]>([]);
     const [companyOpen, setCompanyOpen] = useState(false);
 
-    // Combine top companies with a manual "Others" option logic
+    // Fetch resumes on mount
+    useEffect(() => {
+        if (open) {
+            fetchResumes();
+        }
+    }, [open, fetchResumes]);
+
+    // Set default resume when resumes are loaded
+    useEffect(() => {
+        if (resumes.length > 0 && !formData.resumeId) {
+            const defaultResume = resumes.find(r => r.isDefault);
+            if (defaultResume) {
+                setFormData(prev => ({ ...prev, resumeId: defaultResume.id }));
+            }
+        }
+    }, [resumes, formData.resumeId]);
+
     const companyOptions = [...TOP_100_COMPANIES];
 
-    const handleSubmit = (e: React.FormEvent) => {
+    const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
         if (!formData.companyName || !formData.jobTitle) return;
 
-        const newApplication: Application = {
-            id: uuidv4(),
-            userId: 'user-001',
+        const newApplication: Omit<Application, 'id' | 'createdAt' | 'updatedAt'> = {
+            userId: '',
             companyName: formData.companyName,
             jobTitle: formData.jobTitle,
-            jobUrl: formData.jobUrl,
-            location: formData.location,
+            jobUrl: formData.jobUrl || undefined,
+            location: formData.location || undefined,
             remotePolicy: formData.remotePolicy,
             status: defaultStatus,
-            priority: formData.priority as any,
+            priority: formData.priority as 'LOW' | 'MEDIUM' | 'HIGH',
             jobType: formData.jobType,
             salaryMin: formData.salaryMin ? Number(formData.salaryMin) : undefined,
             salaryMax: formData.salaryMax ? Number(formData.salaryMax) : undefined,
             currency: 'INR',
-            createdAt: new Date(),
-            updatedAt: new Date(),
+            resumeId: formData.resumeId || undefined,
+            tags: selectedTags,
         };
 
-        addApplication(newApplication);
+        await addApplication(newApplication);
+
+        // Reset form
         setFormData({
             companyName: '',
             jobTitle: '',
@@ -97,13 +117,15 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
             jobType: 'FULL_TIME',
             salaryMin: '',
             salaryMax: '',
+            resumeId: '',
         });
+        setSelectedTags([]);
         onClose();
     };
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-md glass-card p-6 border-t-4 border-t-primary">
+            <DialogContent className="max-w-md glass-card p-6 border-t-4 border-t-primary max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="mb-4">
                     <DialogTitle className="text-xl font-bold">
                         Add New Position
@@ -150,22 +172,9 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                     <CommandInput placeholder="Search company..." />
                                     <CommandList>
                                         <CommandEmpty>
-                                            <button
-                                                className="w-full text-left px-2 py-1.5 text-sm hover:bg-accent rounded-sm"
-                                                onClick={() => {
-                                                    // Allow typing any custom value
-                                                    // This requires accessing the input value from command state if possible,
-                                                    // or asking user to type it in a separate input if not found.
-                                                    // For simplicity in this UI pattern:
-                                                    // We can just set the search value as the company name if we could access it.
-                                                    // But Command component abstracts that.
-                                                    // ALTERNATIVE: Use a simple input + datalist or just an Input field 
-                                                    // if user wants to type manually.
-                                                    // Let's modify the UI slightly to allow manual override.
-                                                }}
-                                            >
-                                                Type manually in the box below to add specific company
-                                            </button>
+                                            <span className="text-sm text-muted-foreground">
+                                                Type manually in the box below
+                                            </span>
                                         </CommandEmpty>
                                         <CommandGroup heading="Suggestions">
                                             {companyOptions.map((company) => (
@@ -186,7 +195,6 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                             </PopoverContent>
                         </Popover>
 
-                        {/* Fallback/Override Input for Manual Entry */}
                         <div className="relative mt-1">
                             <Input
                                 placeholder="Or type company name manually..."
@@ -229,6 +237,43 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                 />
                             </div>
                         </div>
+                    </div>
+
+                    {/* Resume Selector */}
+                    {resumes.length > 0 && (
+                        <div className="space-y-2">
+                            <Label className="flex items-center gap-2">
+                                <FileText className="h-4 w-4" />
+                                Resume Used
+                            </Label>
+                            <Select
+                                value={formData.resumeId}
+                                onValueChange={(value) => setFormData({ ...formData, resumeId: value })}
+                            >
+                                <SelectTrigger className="bg-background border-border/60">
+                                    <SelectValue placeholder="Select resume..." />
+                                </SelectTrigger>
+                                <SelectContent>
+                                    <SelectItem value="">None</SelectItem>
+                                    {resumes.map((resume) => (
+                                        <SelectItem key={resume.id} value={resume.id}>
+                                            {resume.name}
+                                            {resume.isDefault && ' (Default)'}
+                                            {resume.version && ` - ${resume.version}`}
+                                        </SelectItem>
+                                    ))}
+                                </SelectContent>
+                            </Select>
+                        </div>
+                    )}
+
+                    {/* Tags Selector */}
+                    <div className="space-y-2">
+                        <Label>Tags</Label>
+                        <TagSelector
+                            selectedTags={selectedTags}
+                            onTagsChange={setSelectedTags}
+                        />
                     </div>
 
                     <div className="flex gap-3 pt-4 border-t border-border/40">
