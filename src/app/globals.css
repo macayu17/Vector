@@ -6,8 +6,8 @@
 @theme inline {
   --color-background: var(--background);
   --color-foreground: var(--foreground);
-  --font-sans: var(--font-geist-sans);
-  --font-mono: var(--font-geist-mono);
+  --font-sans: var(--font-jakarta);
+  --font-mono: var(--font-mono);
   --color-sidebar-ring: var(--sidebar-ring);
   --color-sidebar-border: var(--sidebar-border);
   --color-sidebar-accent-foreground: var(--sidebar-accent-foreground);
@@ -130,14 +130,14 @@
   }
 }
 
-/* Subtle background gradient for depth, not overwhelming color */
+/* Clean, minimal background */
 .dark body {
   background:
     radial-gradient(circle at 50% 0%, rgba(124, 58, 237, 0.05), transparent 40%),
     #02040a;
 }
 
-/* Scrollbar */
+/* Scrollbar - Minimal */
 ::-webkit-scrollbar {
   width: 6px;
   height: 6px;
@@ -157,57 +157,60 @@
   background: var(--primary);
 }
 
-/* Glass Utility - More neutral/dark in dark mode */
+/* Glass Utility - Clean and minimal */
 .glass {
-  background: rgba(255, 255, 255, 0.8);
+  background: rgba(255, 255, 255, 0.9);
   backdrop-filter: blur(12px);
   -webkit-backdrop-filter: blur(12px);
-  border-bottom: 1px solid rgba(226, 232, 240, 0.8);
+  border-bottom: 1px solid rgba(226, 232, 240, 0.6);
 }
 
 .dark .glass {
-  background: rgba(17, 17, 17, 0.7);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  box-shadow:
-    rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset,
-    rgba(0, 0, 0, 0.5) 0px 8px 32px 0px;
+  background: rgba(10, 10, 12, 0.85);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border-bottom: 1px solid rgba(255, 255, 255, 0.05);
 }
 
-/* Glass Card - Subtle border */
+/* Glass Card - Clean border */
 .glass-card {
   background: #ffffff;
   border: 1px solid #e2e8f0;
+  border-radius: 12px;
 }
 
 .dark .glass-card {
-  background: rgba(26, 26, 26, 0.6);
-  backdrop-filter: blur(8px);
-  -webkit-backdrop-filter: blur(8px);
-  border: 1px solid rgba(255, 255, 255, 0.1);
-  border-radius: 16px;
-  box-shadow:
-    rgba(255, 255, 255, 0.1) 0px 1px 0px 0px inset,
-    rgba(0, 0, 0, 0.5) 0px 8px 32px 0px;
-  transition: all 0.3s ease;
-}
-
-/* Hover glow - Very subtle */
-.hover-glow {
+  background: rgba(18, 18, 20, 0.6);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+  border-radius: 12px;
   transition: all 0.2s ease;
 }
 
-.dark .hover-glow:hover {
-  background: rgba(26, 26, 26, 0.8);
-  border-color: rgba(168, 85, 247, 0.3);
-  box-shadow:
-    rgba(255, 255, 255, 0.15) 0px 1px 0px 0px inset,
-    rgba(168, 85, 247, 0.2) 0px 20px 50px;
+/* Glass Card - Premium gradient border */
+/* Glass Card - Premium gradient border */
+/* Removed for minimalist look */
+
+/* Enhanced hover glow with animation */
+/* Removed for minimalist look */
+
+/* Clean Hover Effect */
+.hover-subtle {
+  transition: all 0.2s ease;
 }
 
-/* Gradient Text */
+.hover-subtle:hover {
+  background: rgba(0, 0, 0, 0.02);
+}
+
+.dark .hover-subtle:hover {
+  background: rgba(255, 255, 255, 0.03);
+}
+
+/* Gradient Text - Clean */
 .gradient-text {
+  /* Kept subtle gradient but removed animation */
   background: linear-gradient(to right, #5b21b6, #7c3aed);
   -webkit-background-clip: text;
   -webkit-text-fill-color: transparent;
@@ -219,14 +222,38 @@
   -webkit-text-fill-color: transparent;
 }
 
-/* Stats Card */
+/* Premium Stats Card */
 .stats-card {
   background: var(--muted);
   border: 1px solid var(--border);
+  border-radius: 12px;
 }
 
 .dark .stats-card {
-  background: rgba(168, 85, 247, 0.08);
-  backdrop-filter: blur(8px);
-  border: 1px solid rgba(168, 85, 247, 0.15);
+  background: rgba(255, 255, 255, 0.03);
+  border: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+/* Animated Status Tab */
+.status-tab-active {
+  background: var(--primary);
+  color: var(--primary-foreground);
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+}
+
+/* Helper utilities */
+.animate-in {
+  animation: fadeIn 0.3s ease-out;
+}
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(5px);
+  }
+
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
 }

@@ -32,22 +32,22 @@ export function Sidebar() {
     const interviewsCount = applications.filter(app => app.status === 'INTERVIEW_SCHEDULED').length;
 
     return (
-        <aside className="flex flex-col w-[220px] h-screen glass border-r border-border/50 relative z-10">
-            {/* Logo */}
-            <div className="flex items-center gap-3 px-4 py-5 border-b border-border/50">
+        <aside className="flex flex-col w-[240px] h-screen glass border-r border-border/40 relative z-10">
+            {/* Logo - Minimal */}
+            <div className="flex items-center gap-3 px-5 py-6 border-b border-border/40">
                 <img
                     src="/logo.png"
                     alt="Vector Logo"
                     className="w-10 h-10 object-contain"
                 />
                 <div>
-                    <span className="font-bold text-lg">Vector</span>
-                    <p className="text-[10px] text-muted-foreground -mt-0.5">Modern Job Tracking</p>
+                    <span className="font-bold text-lg tracking-tight">Vector</span>
+                    <p className="text-[10px] text-muted-foreground -mt-0.5 tracking-wide uppercase font-medium">Job Tracking</p>
                 </div>
             </div>
 
-            {/* Navigation */}
-            <nav className="flex-1 px-3 py-4">
+            {/* Navigation - Minimal */}
+            <nav className="flex-1 px-3 py-5">
                 <ul className="space-y-1">
                     {navigation.map((item) => {
                         const isActive = pathname === item.href;
@@ -58,16 +58,16 @@ export function Sidebar() {
                                 <Link
                                     href={item.href}
                                     className={`
-                    flex items-center gap-3 px-3 py-2.5 rounded-lg text-sm
-                    transition-all duration-200
-                    ${isActive
-                                            ? 'bg-primary text-primary-foreground font-medium'
-                                            : 'text-muted-foreground hover:bg-accent hover:text-foreground'
+                                        flex items-center gap-3 px-4 py-2.5 rounded-lg text-sm font-medium
+                                        transition-colors duration-200
+                                        ${isActive
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'text-muted-foreground hover:bg-muted/50 hover:text-foreground'
                                         }
-                  `}
+                                    `}
                                 >
-                                    <Icon className="w-4 h-4" />
-                                    {item.name}
+                                    <Icon className="w-[18px] h-[18px]" />
+                                    <span>{item.name}</span>
                                 </Link>
                             </li>
                         );
@@ -75,16 +75,16 @@ export function Sidebar() {
                 </ul>
             </nav>
 
-            {/* Stats Card */}
-            <div className="mx-3 mb-4 p-4 rounded-xl stats-card">
-                <p className="text-xs font-medium text-muted-foreground mb-3">Quick Stats</p>
-                <div className="grid grid-cols-2 gap-2">
-                    <div className="p-2 rounded-lg bg-background/30 text-center">
-                        <p className="text-lg font-bold text-primary">{activeCount}</p>
+            {/* Stats Card - Minimal */}
+            <div className="mx-3 mb-6 p-4 rounded-xl border border-border/40 bg-secondary/20">
+                <p className="text-[10px] font-semibold text-muted-foreground mb-3 text-center uppercase tracking-wider">Overview</p>
+                <div className="grid grid-cols-2 gap-3">
+                    <div className="p-2 text-center">
+                        <p className="text-xl font-bold text-foreground">{activeCount}</p>
                         <p className="text-[10px] text-muted-foreground">Active</p>
                     </div>
-                    <div className="p-2 rounded-lg bg-background/30 text-center">
-                        <p className="text-lg font-bold text-orange-500">{interviewsCount}</p>
+                    <div className="p-2 text-center border-l border-border/40">
+                        <p className="text-xl font-bold text-foreground">{interviewsCount}</p>
                         <p className="text-[10px] text-muted-foreground">Interviews</p>
                     </div>
                 </div>

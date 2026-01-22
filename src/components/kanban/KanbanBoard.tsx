@@ -23,20 +23,20 @@ import { SearchBar } from './SearchBar';
 import { FilterPanel } from './FilterPanel';
 import { BulkActionBar } from './BulkActionBar';
 import { Button } from '@/components/ui/button';
-import { Plus, Loader2, CheckSquare, XSquare } from 'lucide-react';
+import { Plus, Loader2, CheckSquare, XSquare, SendHorizontal, FileCheck, Calendar, XCircle, PauseCircle, Heart, Inbox, LucideIcon } from 'lucide-react';
 
 // Status tab configuration - matches APPLICATION_STATUSES order
-const STATUS_TABS: { status: ApplicationStatus; icon: string }[] = [
-    { status: 'APPLIED', icon: '📤' },
-    { status: 'OA_RECEIVED', icon: '📝' },
-    { status: 'INTERVIEW_SCHEDULED', icon: '🎯' },
-    { status: 'REJECTED', icon: '❌' },
-    { status: 'STALLED', icon: '⏸️' },
-    { status: 'WISHLIST', icon: '📋' },
+const STATUS_TABS: { status: ApplicationStatus; icon: LucideIcon }[] = [
+    { status: 'APPLIED', icon: SendHorizontal },
+    { status: 'OA_RECEIVED', icon: FileCheck },
+    { status: 'INTERVIEW_SCHEDULED', icon: Calendar },
+    { status: 'REJECTED', icon: XCircle },
+    { status: 'STALLED', icon: PauseCircle },
+    { status: 'WISHLIST', icon: Heart },
 ];
 
 // Drop zone component for moving cards
-function DropZone({ status, icon, label }: { status: ApplicationStatus; icon: string; label: string }) {
+function DropZone({ status, icon: Icon, label }: { status: ApplicationStatus; icon: LucideIcon; label: string }) {
     const { setNodeRef, isOver } = useDroppable({ id: status });
 
     return (
@@ -51,7 +51,7 @@ function DropZone({ status, icon, label }: { status: ApplicationStatus; icon: st
                 }
       `}
         >
-            <span>{icon}</span>
+            <Icon className="h-4 w-4" />
             <span>Move to {label}</span>
         </div>
     );
@@ -76,7 +76,7 @@ function DroppableArea({
         <div
             ref={setNodeRef}
             className={`
-        min-h-[400px] p-6 rounded-2xl glass-card
+        min-h-[400px] p-6 rounded-2xl border border-dashed border-border/60 bg-muted/10
         transition-all
         ${isOver ? 'ring-2 ring-primary/50 bg-primary/5' : ''}
       `}
@@ -85,7 +85,7 @@ function DroppableArea({
                 {applications.length === 0 ? (
                     <div className="flex flex-col items-center justify-center h-[300px] text-center">
                         <div className="w-16 h-16 rounded-full bg-muted/50 flex items-center justify-center mb-4">
-                            <span className="text-3xl opacity-50">📭</span>
+                            <Inbox className="h-8 w-8 text-muted-foreground/50" />
                         </div>
                         <p className="text-muted-foreground mb-4">No applications in this category</p>
                         <Button
@@ -246,46 +246,47 @@ export function KanbanBoard() {
                 onDragEnd={handleDragEnd}
             >
                 {/* Status Tabs */}
-                <div className="bg-card/50 backdrop-blur-sm rounded-xl border border-border/50 p-1 mb-6">
-                    <div className="flex gap-1 overflow-x-auto">
-                        {STATUS_TABS.map(({ status, icon }) => {
-                            const count = getCount(status);
-                            const isActive = activeTab === status;
+                <div className="bg-muted/50 rounded-lg p-1 mb-6 flex gap-1 overflow-x-auto">
+                    {STATUS_TABS.map(({ status, icon: Icon }) => {
+                        const count = getCount(status);
+                        const isActive = activeTab === status;
 
-                            return (
-                                <button
-                                    key={status}
-                                    onClick={() => setActiveTab(status)}
-                                    className={`
-                    flex items-center gap-2 px-4 py-2.5 text-sm font-medium
-                    rounded-lg transition-all whitespace-nowrap
+                        return (
+                            <button
+                                key={status}
+                                onClick={() => setActiveTab(status)}
+                                className={`
+                    flex items-center gap-2 px-3 py-2 text-sm font-medium
+                    rounded-md transition-all whitespace-nowrap
                     ${isActive
-                                            ? 'bg-primary text-primary-foreground shadow-sm'
-                                            : 'text-muted-foreground hover:text-foreground hover:bg-muted/50'
-                                        }
+                                        ? 'bg-background text-foreground shadow-sm'
+                                        : 'text-muted-foreground hover:bg-background/50 hover:text-foreground'
+                                    }
                   `}
-                                >
-                                    <span>{icon}</span>
-                                    <span className="hidden sm:inline">{STATUS_CONFIG[status].label}</span>
-                                    {count > 0 && (
-                                        <span className={`
-                      px-1.5 py-0.5 text-xs rounded-full min-w-[20px] text-center
-                      ${isActive ? 'bg-primary-foreground/20 text-primary-foreground' : 'bg-muted text-muted-foreground'}
+                            >
+                                <Icon className="h-4 w-4" />
+                                <span className="hidden sm:inline">{STATUS_CONFIG[status].label}</span>
+                                {count > 0 && (
+                                    <span className={`
+                      px-1.5 py-0.5 text-[10px] rounded-full min-w-[18px] text-center
+                      ${isActive
+                                            ? 'bg-primary/10 text-primary'
+                                            : 'bg-muted text-muted-foreground'
+                                        }
                     `}>
-                                            {count}
-                                        </span>
-                                    )}
-                                </button>
-                            );
-                        })}
-                    </div>
+                                        {count}
+                                    </span>
+                                )}
+                            </button>
+                        );
+                    })}
                 </div>
 
                 {/* Header */}
                 <div className="flex items-center justify-between mb-6">
                     <div>
                         <h3 className="text-lg font-semibold flex items-center gap-2">
-                            <span>{STATUS_TABS.find(t => t.status === activeTab)?.icon}</span>
+                            {(() => { const TabIcon = STATUS_TABS.find(t => t.status === activeTab)?.icon; return TabIcon ? <TabIcon className="h-5 w-5" /> : null; })()}
                             {STATUS_CONFIG[activeTab].label}
                             {hasActiveFilters && (
                                 <span className="text-xs text-muted-foreground font-normal">(filtered)</span>

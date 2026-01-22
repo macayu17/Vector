@@ -2,11 +2,11 @@
 
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
+import { useApplicationStore } from '@/store/applicationStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Badge } from '@/components/ui/badge';
 import {
     Select,
     SelectContent,
@@ -17,7 +17,6 @@ import {
 import {
     Settings as SettingsIcon,
     User,
-    Bell,
     Palette,
     Download,
     Trash2,
@@ -29,6 +28,7 @@ import {
 
 export default function SettingsPage() {
     const { settings, updateSettings } = useSettingsStore();
+    const { applications } = useApplicationStore();
     const [darkMode, setDarkMode] = useState(false);
     const [saved, setSaved] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -67,15 +67,51 @@ export default function SettingsPage() {
     };
 
     const handleExport = () => {
-        const data = {
-            settings: formData,
-            exportedAt: new Date().toISOString(),
-        };
-        const blob = new Blob([JSON.stringify(data, null, 2)], { type: 'application/json' });
+        // Define CSV headers
+        const headers = [
+            'Company',
+            'Job Title',
+            'Status',
+            'Priority',
+            'Job Type',
+            'Location',
+            'Salary Min',
+            'Salary Max',
+            'Currency',
+            'Applied Date',
+            'Link',
+            'Notes'
+        ];
+
+        // Convert applications to CSV rows
+        const rows = applications.map(app => [
+            app.companyName,
+            app.jobTitle,
+            app.status,
+            app.priority,
+            app.jobType,
+            app.location || '',
+            app.salaryMin || '',
+            app.salaryMax || '',
+            app.currency || 'USD',
+            app.appliedDate ? new Date(app.appliedDate).toISOString().split('T')[0] : '',
+            app.jobUrl || '',
+            app.notes || ''
+        ].map(field => {
+            // Escape quotes and wrap in quotes to handle commas and newlines
+            const stringValue = String(field || '');
+            return `"${stringValue.replace(/"/g, '""')}"`;
+        }).join(','));
+
+        // Combine headers and rows
+        const csvContent = [headers.join(','), ...rows].join('\n');
+
+        // Create download
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
         const url = URL.createObjectURL(blob);
         const a = document.createElement('a');
         a.href = url;
-        a.download = 'careerflow-export.json';
+        a.download = `careerflow_export_${new Date().toISOString().split('T')[0]}.csv`;
         a.click();
         URL.revokeObjectURL(url);
     };
@@ -220,32 +256,6 @@ export default function SettingsPage() {
                         </div>
                     </Card>
 
-                    {/* Notifications Section */}
-                    <Card className="glass-card p-6">
-                        <div className="flex items-center gap-3 mb-6">
-                            <Bell className="w-5 h-5 text-primary" />
-                            <h2 className="text-lg font-semibold">Notifications</h2>
-                        </div>
-
-                        <div className="space-y-4">
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">Stalled Application Reminders</p>
-                                    <p className="text-sm text-muted-foreground">Get notified about inactive applications</p>
-                                </div>
-                                <Badge variant="outline" className="border-primary/30 text-primary">Coming Soon</Badge>
-                            </div>
-
-                            <div className="flex items-center justify-between">
-                                <div>
-                                    <p className="font-medium">Interview Reminders</p>
-                                    <p className="text-sm text-muted-foreground">Reminders before scheduled interviews</p>
-                                </div>
-                                <Badge variant="outline" className="border-primary/30 text-primary">Coming Soon</Badge>
-                            </div>
-                        </div>
-                    </Card>
-
                     {/* Data Section */}
                     <Card className="glass-card p-6">
                         <div className="flex items-center gap-3 mb-6">
@@ -257,11 +267,11 @@ export default function SettingsPage() {
                             <div className="flex items-center justify-between">
                                 <div>
                                     <p className="font-medium">Export Data</p>
-                                    <p className="text-sm text-muted-foreground">Download your settings as JSON</p>
+                                    <p className="text-sm text-muted-foreground">Download your applications as CSV</p>
                                 </div>
                                 <Button variant="outline" size="sm" onClick={handleExport} className="gap-2">
                                     <Download className="w-4 h-4" />
-                                    Export
+                                    Export CSV
                                 </Button>
                             </div>
 

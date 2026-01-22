@@ -10,7 +10,6 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TagBadge } from '@/components/ui/tag-badge';
 import {
-    MapPin,
     Calendar,
     IndianRupee,
     ExternalLink,
@@ -129,10 +128,10 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
             onClick={handleClick}
             className={`
         group cursor-pointer glass-card hover-glow overflow-hidden relative
-        transition-all duration-300 ease-out mb-3
-        ${isDragging ? 'opacity-60 shadow-xl scale-[1.02] rotate-1 z-50' : ''}
+        transition-all duration-200 ease-out mb-3
+        ${isDragging ? 'opacity-80 shadow-xl scale-[1.02] rotate-1 z-50 ring-2 ring-primary/50' : ''}
         ${stalled ? 'border-l-4 border-l-amber-500/50' : ''}
-        ${isCardSelected ? 'ring-2 ring-primary border-primary/50' : ''}
+        ${isCardSelected ? 'ring-2 ring-primary border-primary/50 bg-primary/5' : ''}
       `}
             {...attributes}
             {...listeners}
@@ -142,11 +141,11 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                 <button
                     onClick={handleCheckboxClick}
                     className={`
-                        absolute top-3 left-3 w-5 h-5 rounded border-2 
+                        absolute top-3 left-3 w-5 h-5 rounded-md border-2 
                         flex items-center justify-center transition-all z-10
                         ${isCardSelected
                             ? 'bg-primary border-primary text-primary-foreground'
-                            : 'border-border/60 bg-background/50 opacity-0 group-hover:opacity-100'
+                            : 'border-border/60 bg-background/50 opacity-0 group-hover:opacity-100 hover:border-primary/50'
                         }
                         ${selectedIds.length > 0 ? 'opacity-100' : ''}
                     `}
@@ -157,23 +156,25 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                 {/* Header */}
                 <div className={`flex items-start gap-3 mb-3 ${selectedIds.length > 0 || isCardSelected ? 'pl-7' : ''}`}>
                     {/* Company Logo */}
-                    <div className="relative flex-shrink-0 w-11 h-11 rounded-lg bg-background flex items-center justify-center p-1.5 border border-border/50">
-                        {!logoError ? (
-                            <img
-                                src={logoUrl}
-                                alt={`${application.companyName} logo`}
-                                className="w-full h-full object-contain"
-                                onError={() => setLogoError(true)}
-                            />
-                        ) : (
-                            <span className="text-lg font-bold text-primary">
-                                {application.companyName.charAt(0).toUpperCase()}
-                            </span>
-                        )}
+                    <div className="relative flex-shrink-0">
+                        <div className="relative w-10 h-10 rounded-lg bg-background flex items-center justify-center p-1.5 border border-border/40">
+                            {!logoError ? (
+                                <img
+                                    src={logoUrl}
+                                    alt={`${application.companyName} logo`}
+                                    className="w-full h-full object-contain"
+                                    onError={() => setLogoError(true)}
+                                />
+                            ) : (
+                                <span className="text-lg font-bold text-primary">
+                                    {application.companyName.charAt(0).toUpperCase()}
+                                </span>
+                            )}
+                        </div>
                     </div>
 
                     <div className="flex-1 min-w-0 pt-0.5">
-                        <h3 className="font-semibold text-sm truncate pr-4 text-foreground group-hover:text-primary transition-colors">
+                        <h3 className="font-semibold text-sm truncate pr-4 text-foreground group-hover:text-primary transition-colors duration-200">
                             {application.companyName}
                         </h3>
                         <div className="flex items-center gap-1.5 mt-0.5">
@@ -186,7 +187,7 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-muted-foreground hover:text-primary transition-colors opacity-0 group-hover:opacity-100"
+                                    className="text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
                                 >
                                     <ExternalLink className="h-3 w-3" />
                                 </a>
