@@ -307,14 +307,14 @@ export function JobEditModal({ application, open, onClose }: JobEditModalProps) 
                                             Resume Used
                                         </Label>
                                         <Select
-                                            value={formData.resumeId || ''}
-                                            onValueChange={(value) => updateField('resumeId', value || undefined)}
+                                            value={formData.resumeId || 'none'}
+                                            onValueChange={(value) => updateField('resumeId', value === 'none' ? undefined : value)}
                                         >
                                             <SelectTrigger className="bg-background/50">
                                                 <SelectValue placeholder="Select resume..." />
                                             </SelectTrigger>
                                             <SelectContent>
-                                                <SelectItem value="">None</SelectItem>
+                                                <SelectItem value="none">None</SelectItem>
                                                 {resumes.map((resume) => (
                                                     <SelectItem key={resume.id} value={resume.id}>
                                                         {resume.name}

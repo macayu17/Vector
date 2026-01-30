@@ -247,14 +247,14 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                 Resume Used
                             </Label>
                             <Select
-                                value={formData.resumeId}
-                                onValueChange={(value) => setFormData({ ...formData, resumeId: value })}
+                                value={formData.resumeId || "none"}
+                                onValueChange={(value) => setFormData({ ...formData, resumeId: value === "none" ? "" : value })}
                             >
                                 <SelectTrigger className="bg-background border-border/60">
                                     <SelectValue placeholder="Select resume..." />
                                 </SelectTrigger>
                                 <SelectContent>
-                                    <SelectItem value="">None</SelectItem>
+                                    <SelectItem value="none">None</SelectItem>
                                     {resumes.map((resume) => (
                                         <SelectItem key={resume.id} value={resume.id}>
                                             {resume.name}
