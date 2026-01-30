@@ -97,7 +97,7 @@ export function JobEditModal({ application, open, onClose }: JobEditModalProps) 
                 <div className="h-32 bg-gradient-to-r from-primary to-indigo-800 relative">
                     <div className="absolute inset-0 bg-[url('/grid.svg')] opacity-20" />
                     <div className="absolute -bottom-10 left-8">
-                        <div className="w-20 h-20 bg-background rounded-2xl shadow-xl flex items-center justify-center border-4 border-background overflow-hidden p-2">
+                        <div className="w-20 h-20 bg-white rounded-2xl shadow-xl flex items-center justify-center border-4 border-background overflow-hidden p-2">
                             {!logoError ? (
                                 <img
                                     src={logoUrl}

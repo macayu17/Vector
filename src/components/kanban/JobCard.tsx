@@ -157,7 +157,7 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                 <div className={`flex items-start gap-3 mb-3 ${selectedIds.length > 0 || isCardSelected ? 'pl-7' : ''}`}>
                     {/* Company Logo */}
                     <div className="relative flex-shrink-0">
-                        <div className="relative w-10 h-10 rounded-lg bg-background flex items-center justify-center p-1.5 border border-border/40">
+                        <div className="relative w-10 h-10 rounded-lg bg-white flex items-center justify-center p-1.5 border border-border/40 shadow-sm">
                             {!logoError ? (
                                 <img
                                     src={logoUrl}

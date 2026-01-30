@@ -3,6 +3,7 @@
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useApplicationStore } from '@/store/applicationStore';
+import { useAuth } from '@/components/auth/AuthProvider';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -29,6 +30,7 @@ import {
 export default function SettingsPage() {
     const { settings, updateSettings } = useSettingsStore();
     const { applications } = useApplicationStore();
+    const { user } = useAuth();
     const [darkMode, setDarkMode] = useState(false);
     const [saved, setSaved] = useState(false);
     const [isMounted, setIsMounted] = useState(false);
@@ -44,14 +46,20 @@ export default function SettingsPage() {
     useEffect(() => {
         setIsMounted(true);
         setDarkMode(document.documentElement.classList.contains('dark'));
+
+        // Get user metadata from Supabase auth
+        const userEmail = user?.email || settings.email || '';
+        const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
+        const nameParts = userFullName.split(' ');
+
         setFormData({
-            firstName: settings.firstName,
-            lastName: settings.lastName,
-            email: settings.email,
+            firstName: settings.firstName || nameParts[0] || '',
+            lastName: settings.lastName || nameParts.slice(1).join(' ') || '',
+            email: userEmail,
             currency: settings.currency,
             stalledDays: settings.stalledDays,
         });
-    }, [settings]);
+    }, [settings, user]);
 
     const toggleDarkMode = () => {
         const newDarkMode = !darkMode;

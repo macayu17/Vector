@@ -18,9 +18,9 @@ export const useSettingsStore = create<SettingsState>()(
     persist(
         (set) => ({
             settings: {
-                firstName: 'John',
-                lastName: 'Doe',
-                email: 'john@example.com',
+                firstName: '',
+                lastName: '',
+                email: '',
                 currency: 'INR', // Default to INR
                 stalledDays: 14,
             },
