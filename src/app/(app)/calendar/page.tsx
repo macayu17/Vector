@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from 'react';
 import { v4 as uuidv4 } from 'uuid';
-import { useCalendarStore, CalendarEvent, EventType } from '@/store/calendarStore';
+import { useCalendarStore, EventType } from '@/store/calendarStore';
 import { useApplicationStore } from '@/store/applicationStore';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -38,10 +38,10 @@ import {
 } from 'lucide-react';
 
 const EVENT_TYPES: { value: EventType; label: string; icon: React.ReactNode; color: string }[] = [
-    { value: 'interview', label: 'Interview', icon: <Video className="w-4 h-4" />, color: 'text-red-500 bg-red-500/10 border-red-500/30' },
-    { value: 'oa', label: 'Online Assessment', icon: <FileText className="w-4 h-4" />, color: 'text-orange-500 bg-orange-500/10 border-orange-500/30' },
-    { value: 'deadline', label: 'Deadline', icon: <Bell className="w-4 h-4" />, color: 'text-yellow-500 bg-yellow-500/10 border-yellow-500/30' },
-    { value: 'followup', label: 'Follow Up', icon: <MessageSquare className="w-4 h-4" />, color: 'text-blue-500 bg-blue-500/10 border-blue-500/30' },
+    { value: 'interview', label: 'Interview', icon: <Video className="w-4 h-4" />, color: 'text-[#c14f3c] bg-transparent border-[#c14f3c]/50' },
+    { value: 'oa', label: 'Online Assessment', icon: <FileText className="w-4 h-4" />, color: 'text-primary bg-transparent border-primary/50' },
+    { value: 'deadline', label: 'Deadline', icon: <Bell className="w-4 h-4" />, color: 'text-[#d69f57] bg-transparent border-[#d69f57]/50' },
+    { value: 'followup', label: 'Follow Up', icon: <MessageSquare className="w-4 h-4" />, color: 'text-[#7f8f69] bg-transparent border-[#7f8f69]/50' },
 ];
 
 const MONTHS = ['January', 'February', 'March', 'April', 'May', 'June', 'July', 'August', 'September', 'October', 'November', 'December'];
@@ -63,7 +63,8 @@ export default function CalendarPage() {
     });
 
     useEffect(() => {
-        setIsMounted(true);
+        const frame = requestAnimationFrame(() => setIsMounted(true));
+        return () => cancelAnimationFrame(frame);
     }, []);
 
     const today = new Date();
@@ -151,7 +152,7 @@ export default function CalendarPage() {
 
     if (!isMounted) {
         return (
-            <main className="flex-1 overflow-auto glass">
+            <main className="flex-1 overflow-auto bg-background">
                 <div className="max-w-6xl mx-auto p-6">
                     <div className="h-96 flex items-center justify-center">
                         <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
@@ -162,20 +163,15 @@ export default function CalendarPage() {
     }
 
     return (
-        <main className="flex-1 overflow-auto glass">
-            <div className="max-w-6xl mx-auto p-6">
-                {/* Header */}
-                <div className="flex items-center justify-between mb-8">
-                    <div className="flex items-center gap-3">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-primary/10 border border-primary/20">
-                            <CalendarIcon className="w-5 h-5 text-primary" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold">Calendar</h1>
-                            <p className="text-sm text-muted-foreground">
-                                Track interviews, OAs, and deadlines
-                            </p>
-                        </div>
+        <main className="flex-1 overflow-auto bg-background">
+            <div className="max-w-6xl mx-auto px-6 py-8">
+                <div className="flex items-center justify-between mb-8 border-b border-border pb-6">
+                    <div>
+                        <p className="editorial-label mb-1">§ V — Appointments</p>
+                        <h1 className="text-3xl font-semibold">Calendar</h1>
+                        <p className="text-sm text-muted-foreground">
+                            Track interviews, OAs, and deadlines
+                        </p>
                     </div>
                     <Button onClick={() => setIsAddModalOpen(true)} className="gap-2">
                         <Plus className="w-4 h-4" />
@@ -185,10 +181,9 @@ export default function CalendarPage() {
 
                 <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
                     {/* Calendar */}
-                    <Card className="glass-card p-6 lg:col-span-2">
-                        {/* Month Navigation */}
+                    <Card className="p-6 lg:col-span-2">
                         <div className="flex items-center justify-between mb-6">
-                            <h2 className="text-lg font-semibold">
+                            <h2 className="text-2xl font-semibold">
                                 {MONTHS[currentDate.getMonth()]} {currentDate.getFullYear()}
                             </h2>
                             <div className="flex gap-1">
@@ -216,10 +211,9 @@ export default function CalendarPage() {
                             </div>
                         </div>
 
-                        {/* Calendar Grid */}
                         <div className="grid grid-cols-7 gap-1 mb-2">
                             {['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'].map(day => (
-                                <div key={day} className="text-center text-xs font-medium text-muted-foreground py-2">
+                                <div key={day} className="editorial-label text-center text-[10px] py-2">
                                     {day}
                                 </div>
                             ))}
@@ -237,8 +231,8 @@ export default function CalendarPage() {
                                     <div
                                         key={day.toISOString()}
                                         className={`
-                      aspect-square p-1 rounded-lg text-center relative
-                      ${isToday ? 'bg-primary/10 ring-1 ring-primary/30' : 'hover:bg-muted/50'}
+                      aspect-square border border-transparent p-1 text-center relative transition-colors
+                      ${isToday ? 'border-primary bg-secondary/40 text-primary' : 'hover:border-border hover:bg-secondary/20'}
                     `}
                                     >
                                         <span className={`text-sm ${isToday ? 'font-bold text-primary' : ''}`}>
@@ -258,8 +252,9 @@ export default function CalendarPage() {
                     </Card>
 
                     {/* Upcoming Events */}
-                    <Card className="glass-card p-6">
-                        <h2 className="text-lg font-semibold mb-4">Upcoming</h2>
+                    <Card className="p-6">
+                        <p className="editorial-label mb-2">Next seven days</p>
+                        <h2 className="text-2xl font-semibold mb-4">Upcoming</h2>
 
                         {upcomingEvents.length === 0 ? (
                             <div className="text-center py-8">
@@ -326,9 +321,10 @@ export default function CalendarPage() {
 
                 {/* Add Event Modal */}
                 <Dialog open={isAddModalOpen} onOpenChange={setIsAddModalOpen}>
-                    <DialogContent className="max-w-md glass-card">
+                    <DialogContent className="max-w-md">
                         <DialogHeader>
-                            <DialogTitle>Add Event</DialogTitle>
+                            <p className="editorial-label">New appointment</p>
+                            <DialogTitle className="text-2xl font-semibold">Add Event</DialogTitle>
                         </DialogHeader>
 
                         <div className="space-y-4 mt-4">

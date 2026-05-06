@@ -3,6 +3,7 @@
 import { useState } from 'react';
 import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -45,19 +46,17 @@ export default function LoginPage() {
     };
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <div className="w-full max-w-md">
-                {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-3 mb-2">
-                        <img src="/logo.png" alt="Vector" className="w-12 h-12" />
-                        <h1 className="text-3xl font-bold">Vector</h1>
+                        <Image src="/logo.png" alt="Vector" width={48} height={48} className="grayscale" />
+                        <h1 className="text-4xl font-semibold">Vector</h1>
                     </div>
-                    <p className="text-muted-foreground">Welcome back! Sign in to continue.</p>
+                    <p className="editorial-label">The job search ledger</p>
                 </div>
 
-                {/* Login Card */}
-                <div className="glass rounded-2xl p-8 border border-border/50">
+                <div className="border-y border-border py-8">
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
@@ -69,7 +68,7 @@ export default function LoginPage() {
                                     placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="pl-10"
+                                    className="border-x-0 border-t-0 pl-10"
                                     required
                                 />
                             </div>
@@ -85,14 +84,14 @@ export default function LoginPage() {
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-10"
+                                    className="border-x-0 border-t-0 pl-10"
                                     required
                                 />
                             </div>
                         </div>
 
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                        <div className="p-3 border border-destructive/40 bg-background text-destructive text-sm">
                                 {error}
                             </div>
                         )}
@@ -111,7 +110,7 @@ export default function LoginPage() {
 
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-border/50"></div>
+                            <div className="w-full border-t border-border"></div>
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-background px-2 text-muted-foreground">Or continue with</span>
@@ -130,7 +129,7 @@ export default function LoginPage() {
                     </div>
 
                     <p className="text-center text-sm text-muted-foreground mt-6">
-                        Don't have an account?{' '}
+                        Don&apos;t have an account?{' '}
                         <Link href="/signup" className="text-primary hover:underline font-medium">
                             Sign up
                         </Link>

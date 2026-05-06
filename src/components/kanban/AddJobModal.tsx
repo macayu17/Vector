@@ -3,7 +3,6 @@
 import { useState, useEffect } from 'react';
 import { useApplicationStore } from '@/store/applicationStore';
 import { useResumeStore } from '@/store/resumeStore';
-import { useTagStore } from '@/store/tagStore';
 import { Application, ApplicationStatus, JobType, Tag } from '@/types';
 import { TOP_100_COMPANIES } from '@/constants/companies';
 import {
@@ -47,7 +46,6 @@ interface AddJobModalProps {
 export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJobModalProps) {
     const { addApplication } = useApplicationStore();
     const { resumes, fetchResumes } = useResumeStore();
-    const { addTagToApplication } = useTagStore();
 
     const [formData, setFormData] = useState({
         companyName: '',
@@ -76,7 +74,11 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
         if (resumes.length > 0 && !formData.resumeId) {
             const defaultResume = resumes.find(r => r.isDefault);
             if (defaultResume) {
-                setFormData(prev => ({ ...prev, resumeId: defaultResume.id }));
+                const frame = requestAnimationFrame(() => {
+                    setFormData(prev => ({ ...prev, resumeId: defaultResume.id }));
+                });
+
+                return () => cancelAnimationFrame(frame);
             }
         }
     }, [resumes, formData.resumeId]);
@@ -125,9 +127,10 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-md glass-card p-6 border-t-4 border-t-primary max-h-[90vh] overflow-y-auto">
+            <DialogContent className="max-w-md border-t-2 border-t-primary p-6 max-h-[90vh] overflow-y-auto">
                 <DialogHeader className="mb-4">
-                    <DialogTitle className="text-xl font-bold">
+                    <p className="editorial-label">New ledger entry</p>
+                    <DialogTitle className="text-2xl font-semibold">
                         Add New Position
                     </DialogTitle>
                 </DialogHeader>
@@ -140,7 +143,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                             placeholder="e.g. Senior Frontend Engineer"
                             value={formData.jobTitle}
                             onChange={(e) => setFormData({ ...formData, jobTitle: e.target.value })}
-                            className="bg-background border-border/60"
+                            className="bg-background/40"
                         />
                     </div>
 
@@ -152,7 +155,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                     variant="outline"
                                     role="combobox"
                                     aria-expanded={companyOpen}
-                                    className="justify-between bg-background border-border/60 font-normal hover:bg-background hover:text-foreground"
+                                    className="justify-between font-normal normal-case tracking-normal"
                                 >
                                     {formData.companyName ? (
                                         <div className="flex items-center gap-2">
@@ -200,7 +203,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                 placeholder="Or type company name manually..."
                                 value={formData.companyName}
                                 onChange={(e) => setFormData({ ...formData, companyName: e.target.value })}
-                                className="bg-background/50 border-border/60 text-sm h-8"
+                                className="bg-background/40 text-sm h-8"
                             />
                         </div>
                         <p className="text-[10px] text-muted-foreground">Select from list or type above</p>
@@ -213,7 +216,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                 value={formData.jobType}
                                 onValueChange={(value) => setFormData({ ...formData, jobType: value as JobType })}
                             >
-                                <SelectTrigger className="bg-background border-border/60">
+                                    <SelectTrigger>
                                     <SelectValue />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -230,7 +233,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                             <div className="relative">
                                 <MapPin className="absolute left-3 top-2.5 h-4 w-4 text-muted-foreground" />
                                 <Input
-                                    className="pl-9 bg-background border-border/60"
+                                    className="pl-9 bg-background/40"
                                     placeholder="City, Country"
                                     value={formData.location}
                                     onChange={(e) => setFormData({ ...formData, location: e.target.value })}
@@ -250,7 +253,7 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                                 value={formData.resumeId || "none"}
                                 onValueChange={(value) => setFormData({ ...formData, resumeId: value === "none" ? "" : value })}
                             >
-                                <SelectTrigger className="bg-background border-border/60">
+                                <SelectTrigger>
                                     <SelectValue placeholder="Select resume..." />
                                 </SelectTrigger>
                                 <SelectContent>
@@ -276,11 +279,11 @@ export function AddJobModal({ open, onClose, defaultStatus = 'WISHLIST' }: AddJo
                         />
                     </div>
 
-                    <div className="flex gap-3 pt-4 border-t border-border/40">
+                    <div className="flex gap-3 pt-4 border-t border-border">
                         <Button type="button" variant="ghost" onClick={onClose} className="flex-1">
                             Cancel
                         </Button>
-                        <Button type="submit" className="flex-1 bg-primary text-white hover:bg-primary/90">
+                        <Button type="submit" className="flex-1">
                             Add Job
                         </Button>
                     </div>

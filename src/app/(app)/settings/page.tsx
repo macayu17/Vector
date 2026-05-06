@@ -1,9 +1,11 @@
 'use client';
 
+import type { MouseEvent } from 'react';
 import { useState, useEffect } from 'react';
 import { useSettingsStore } from '@/store/settingsStore';
 import { useApplicationStore } from '@/store/applicationStore';
 import { useAuth } from '@/components/auth/AuthProvider';
+import { isDarkTheme, setThemePreference } from '@/lib/theme';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -16,7 +18,6 @@ import {
     SelectValue,
 } from '@/components/ui/select';
 import {
-    Settings as SettingsIcon,
     User,
     Palette,
     Download,
@@ -44,28 +45,44 @@ export default function SettingsPage() {
     });
 
     useEffect(() => {
-        setIsMounted(true);
-        setDarkMode(document.documentElement.classList.contains('dark'));
+        const frame = requestAnimationFrame(() => {
+            setIsMounted(true);
+            setDarkMode(isDarkTheme());
 
-        // Get user metadata from Supabase auth
-        const userEmail = user?.email || settings.email || '';
-        const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
-        const nameParts = userFullName.split(' ');
+            // Get user metadata from Supabase auth
+            const userEmail = user?.email || settings.email || '';
+            const userFullName = user?.user_metadata?.full_name || user?.user_metadata?.name || '';
+            const nameParts = userFullName.split(' ');
 
-        setFormData({
-            firstName: settings.firstName || nameParts[0] || '',
-            lastName: settings.lastName || nameParts.slice(1).join(' ') || '',
-            email: userEmail,
-            currency: settings.currency,
-            stalledDays: settings.stalledDays,
+            setFormData({
+                firstName: settings.firstName || nameParts[0] || '',
+                lastName: settings.lastName || nameParts.slice(1).join(' ') || '',
+                email: userEmail,
+                currency: settings.currency,
+                stalledDays: settings.stalledDays,
+            });
         });
+
+        const handleThemeChange = (event: Event) => {
+            const { darkMode: nextDarkMode } = (event as CustomEvent<{ darkMode: boolean }>).detail;
+            setDarkMode(nextDarkMode);
+        };
+
+        window.addEventListener('careerflow-theme-change', handleThemeChange);
+
+        return () => {
+            cancelAnimationFrame(frame);
+            window.removeEventListener('careerflow-theme-change', handleThemeChange);
+        };
     }, [settings, user]);
 
-    const toggleDarkMode = () => {
+    const toggleDarkMode = (event: MouseEvent<HTMLButtonElement>) => {
         const newDarkMode = !darkMode;
-        setDarkMode(newDarkMode);
-        localStorage.setItem('darkMode', String(newDarkMode));
-        document.documentElement.classList.toggle('dark', newDarkMode);
+        const rect = event.currentTarget.getBoundingClientRect();
+        setThemePreference(newDarkMode, {
+            x: rect.left + rect.width / 2,
+            y: rect.top + rect.height / 2,
+        });
     };
 
     const handleSave = () => {
@@ -126,7 +143,7 @@ export default function SettingsPage() {
 
     if (!isMounted) {
         return (
-            <main className="flex-1 overflow-auto glass">
+            <main className="flex-1 overflow-auto bg-background">
                 <div className="max-w-2xl mx-auto p-6">
                     <div className="h-96 flex items-center justify-center">
                         <div className="animate-spin h-8 w-8 border-2 border-primary border-t-transparent rounded-full" />
@@ -137,26 +154,19 @@ export default function SettingsPage() {
     }
 
     return (
-        <main className="flex-1 overflow-auto glass">
-            <div className="max-w-2xl mx-auto p-6">
-                {/* Header */}
-                <div className="mb-8">
-                    <div className="flex items-center gap-3 mb-2">
-                        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-muted border border-border">
-                            <SettingsIcon className="w-5 h-5 text-muted-foreground" />
-                        </div>
-                        <div>
-                            <h1 className="text-2xl font-bold">Settings</h1>
-                            <p className="text-sm text-muted-foreground">
-                                Manage your preferences
-                            </p>
-                        </div>
-                    </div>
+        <main className="flex-1 overflow-auto bg-background">
+            <div className="max-w-2xl mx-auto px-6 py-8">
+                <div className="mb-8 border-b border-border pb-6">
+                    <p className="editorial-label mb-1">§ VI — Preferences</p>
+                    <h1 className="text-3xl font-semibold">Settings</h1>
+                    <p className="text-sm text-muted-foreground">
+                        Manage your preferences
+                    </p>
                 </div>
 
                 <div className="space-y-6">
                     {/* Profile Section */}
-                    <Card className="glass-card p-6">
+                    <Card className="p-6">
                         <div className="flex items-center gap-3 mb-6">
                             <User className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-semibold">Profile</h2>
@@ -170,7 +180,7 @@ export default function SettingsPage() {
                                         id="firstName"
                                         value={formData.firstName}
                                         onChange={(e) => setFormData({ ...formData, firstName: e.target.value })}
-                                        className="bg-background/50"
+                                        className="bg-background/40"
                                     />
                                 </div>
                                 <div className="space-y-2">
@@ -179,7 +189,7 @@ export default function SettingsPage() {
                                         id="lastName"
                                         value={formData.lastName}
                                         onChange={(e) => setFormData({ ...formData, lastName: e.target.value })}
-                                        className="bg-background/50"
+                                        className="bg-background/40"
                                     />
                                 </div>
                             </div>
@@ -190,14 +200,14 @@ export default function SettingsPage() {
                                     type="email"
                                     value={formData.email}
                                     onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                                    className="bg-background/50"
+                                    className="bg-background/40"
                                 />
                             </div>
                         </div>
                     </Card>
 
                     {/* Appearance Section */}
-                    <Card className="glass-card p-6">
+                    <Card className="p-6">
                         <div className="flex items-center gap-3 mb-6">
                             <Palette className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-semibold">Appearance</h2>
@@ -229,7 +239,7 @@ export default function SettingsPage() {
                                     value={formData.currency}
                                     onValueChange={(value) => setFormData({ ...formData, currency: value })}
                                 >
-                                    <SelectTrigger className="w-32 bg-background/50">
+                                    <SelectTrigger className="w-32">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -250,7 +260,7 @@ export default function SettingsPage() {
                                     value={String(formData.stalledDays)}
                                     onValueChange={(value) => setFormData({ ...formData, stalledDays: parseInt(value) })}
                                 >
-                                    <SelectTrigger className="w-32 bg-background/50">
+                                    <SelectTrigger className="w-32">
                                         <SelectValue />
                                     </SelectTrigger>
                                     <SelectContent>
@@ -265,7 +275,7 @@ export default function SettingsPage() {
                     </Card>
 
                     {/* Data Section */}
-                    <Card className="glass-card p-6">
+                    <Card className="p-6">
                         <div className="flex items-center gap-3 mb-6">
                             <Download className="w-5 h-5 text-primary" />
                             <h2 className="text-lg font-semibold">Data</h2>

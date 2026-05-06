@@ -2,7 +2,7 @@
 
 import { useState } from 'react';
 import { useApplicationStore } from '@/store/applicationStore';
-import { APPLICATION_STATUSES, STATUS_CONFIG, ApplicationStatus } from '@/types';
+import { APPLICATION_STATUSES, STATUS_CONFIG, ApplicationStatus, PRIORITY_LEVELS, Priority } from '@/types';
 import { Button } from '@/components/ui/button';
 import {
     Select,
@@ -22,7 +22,7 @@ import {
 import { CheckSquare, Trash2, ArrowRight, X } from 'lucide-react';
 
 export function BulkActionBar() {
-    const { selectedIds, clearSelection, bulkUpdateStatus, bulkDelete } = useApplicationStore();
+    const { selectedIds, clearSelection, bulkUpdateStatus, bulkUpdatePriority, bulkDelete } = useApplicationStore();
     const [showDeleteConfirm, setShowDeleteConfirm] = useState(false);
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -30,6 +30,10 @@ export function BulkActionBar() {
 
     const handleStatusChange = async (status: ApplicationStatus) => {
         await bulkUpdateStatus(selectedIds, status);
+    };
+
+    const handlePriorityChange = async (priority: Priority) => {
+        await bulkUpdatePriority(selectedIds, priority);
     };
 
     const handleDelete = async () => {
@@ -42,11 +46,11 @@ export function BulkActionBar() {
     return (
         <>
             <div className="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 animate-in slide-in-from-bottom-4 fade-in duration-300">
-                <div className="flex items-center gap-3 px-4 py-3 rounded-xl glass-card border border-border/50 shadow-2xl">
+                <div className="flex items-center gap-3 border border-border bg-card px-4 py-3 shadow-none">
                     {/* Selection count */}
-                    <div className="flex items-center gap-2 pr-3 border-r border-border/50">
+                    <div className="flex items-center gap-2 pr-3 border-r border-border">
                         <CheckSquare className="h-4 w-4 text-primary" />
-                        <span className="text-sm font-medium">
+                        <span className="editorial-label text-[10px] text-foreground">
                             {selectedIds.length} selected
                         </span>
                     </div>
@@ -55,7 +59,7 @@ export function BulkActionBar() {
                     <div className="flex items-center gap-2">
                         <ArrowRight className="h-4 w-4 text-muted-foreground" />
                         <Select onValueChange={(value) => handleStatusChange(value as ApplicationStatus)}>
-                            <SelectTrigger className="w-[140px] h-8 text-xs bg-background/50">
+                            <SelectTrigger className="w-[140px] h-8 text-xs">
                                 <SelectValue placeholder="Move to..." />
                             </SelectTrigger>
                             <SelectContent>
@@ -67,6 +71,19 @@ export function BulkActionBar() {
                             </SelectContent>
                         </Select>
                     </div>
+
+                    <Select onValueChange={(value) => handlePriorityChange(value as Priority)}>
+                        <SelectTrigger className="h-8 w-[128px] text-xs">
+                            <SelectValue placeholder="Priority..." />
+                        </SelectTrigger>
+                        <SelectContent>
+                            {PRIORITY_LEVELS.map((priority) => (
+                                <SelectItem key={priority} value={priority} className="text-xs">
+                                    {priority.toLowerCase()}
+                                </SelectItem>
+                            ))}
+                        </SelectContent>
+                    </Select>
 
                     {/* Delete button */}
                     <Button
@@ -97,7 +114,7 @@ export function BulkActionBar() {
                     <DialogHeader>
                         <DialogTitle>Delete {selectedIds.length} applications?</DialogTitle>
                         <DialogDescription>
-                            This action cannot be undone. These applications will be permanently removed.
+                            These applications will be removed. You can restore them from the undo bar immediately after deletion.
                         </DialogDescription>
                     </DialogHeader>
                     <DialogFooter className="gap-2 sm:gap-0">

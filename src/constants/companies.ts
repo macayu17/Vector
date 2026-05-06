@@ -52,6 +52,8 @@ export const COMPANY_DOMAINS: Record<string, string> = {
     "goldman sachs": "goldmansachs.com",
     "jpmorgan chase": "jpmorganchase.com",
     "jpmorgan": "jpmorganchase.com",
+    "jpmc": "jpmorganchase.com",
+    "jp morgan": "jpmorganchase.com",
 
     // Enterprise & SaaS
     "slack": "slack.com",
@@ -104,6 +106,12 @@ export const COMPANY_DOMAINS: Record<string, string> = {
     "infosys": "infosys.com",
     "tcs": "tcs.com",
     "wipro": "wipro.com",
+    "deloitte": "deloitte.com",
+    "h&m": "hm.com",
+    "hm": "hm.com",
+    "jane street": "janestreet.com",
+    "western digital": "westerndigital.com",
+    "western digital corp": "westerndigital.com",
     "hcl": "hcltech.com",
     "reliance": "ril.com",
     "jio": "jio.com",

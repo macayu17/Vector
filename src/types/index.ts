@@ -69,6 +69,49 @@ export interface Application {
   updatedAt: Date;
 }
 
+export interface SavedView {
+  id: string;
+  name: string;
+  filters: ApplicationFilters;
+  activeStatus: ApplicationStatus;
+  createdAt: Date;
+}
+
+export interface FollowUpReminder {
+  applicationId: string;
+  dueDate: string;
+  note?: string;
+  completed: boolean;
+  updatedAt: string;
+}
+
+export type ActivityType =
+  | 'created'
+  | 'updated'
+  | 'moved'
+  | 'deleted'
+  | 'restored'
+  | 'followup';
+
+export interface ActivityEntry {
+  id: string;
+  applicationId: string;
+  type: ActivityType;
+  label: string;
+  detail?: string;
+  createdAt: string;
+}
+
+export interface UndoAction {
+  id: string;
+  type: 'move' | 'update' | 'delete' | 'bulk-move' | 'bulk-delete' | 'bulk-priority';
+  label: string;
+  applications: Application[];
+  createdAt: string;
+}
+
+export type BoardViewMode = 'stage' | 'columns';
+
 export const APPLICATION_STATUSES: ApplicationStatus[] = [
   'APPLIED',
   'OA_RECEIVED',

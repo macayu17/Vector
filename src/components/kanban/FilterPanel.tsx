@@ -69,7 +69,7 @@ export function FilterPanel() {
                     <Button
                         variant="outline"
                         size="sm"
-                        className="gap-2 bg-background/50 border-border/60"
+                        className="gap-2"
                     >
                         <Filter className="h-4 w-4" />
                         Filters
@@ -85,7 +85,7 @@ export function FilterPanel() {
                     <div className="space-y-4">
                         {/* Status Filter */}
                         <div>
-                            <h4 className="text-sm font-medium mb-2">Status</h4>
+                            <h4 className="editorial-label mb-2">Status</h4>
                             <div className="flex flex-wrap gap-1.5">
                                 {APPLICATION_STATUSES.map((status) => (
                                     <Badge
@@ -102,7 +102,7 @@ export function FilterPanel() {
 
                         {/* Priority Filter */}
                         <div>
-                            <h4 className="text-sm font-medium mb-2">Priority</h4>
+                            <h4 className="editorial-label mb-2">Priority</h4>
                             <div className="flex flex-wrap gap-1.5">
                                 {PRIORITY_LEVELS.map((priority) => (
                                     <Badge
@@ -119,7 +119,7 @@ export function FilterPanel() {
 
                         {/* Job Type Filter */}
                         <div>
-                            <h4 className="text-sm font-medium mb-2">Job Type</h4>
+                            <h4 className="editorial-label mb-2">Job Type</h4>
                             <div className="flex flex-wrap gap-1.5">
                                 {JOB_TYPES.map(({ value, label }) => (
                                     <Badge
@@ -137,7 +137,7 @@ export function FilterPanel() {
                         {/* Tags Filter */}
                         {tags.length > 0 && (
                             <div>
-                                <h4 className="text-sm font-medium mb-2">Tags</h4>
+                                <h4 className="editorial-label mb-2">Tags</h4>
                                 <div className="flex flex-wrap gap-1.5">
                                     {tags.map((tag) => (
                                         <Badge

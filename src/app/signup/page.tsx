@@ -1,13 +1,13 @@
 'use client';
 
 import { useState } from 'react';
-import { useRouter } from 'next/navigation';
 import Link from 'next/link';
+import Image from 'next/image';
 import { useAuth } from '@/components/auth/AuthProvider';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Loader2, Mail, Lock, Chrome, Github, User } from 'lucide-react';
+import { Loader2, Mail, Lock, Chrome, Github } from 'lucide-react';
 
 export default function SignupPage() {
     const [email, setEmail] = useState('');
@@ -17,7 +17,6 @@ export default function SignupPage() {
     const [loading, setLoading] = useState(false);
     const [success, setSuccess] = useState(false);
     const { signUp, signInWithGoogle, signInWithGithub } = useAuth();
-    const router = useRouter();
 
     const handleSubmit = async (e: React.FormEvent) => {
         e.preventDefault();
@@ -59,15 +58,13 @@ export default function SignupPage() {
 
     if (success) {
         return (
-            <div className="min-h-screen flex items-center justify-center p-4">
+            <div className="min-h-screen flex items-center justify-center bg-background p-4">
                 <div className="w-full max-w-md text-center">
-                    <div className="glass rounded-2xl p-8 border border-border/50">
-                        <div className="w-16 h-16 bg-green-500/20 rounded-full flex items-center justify-center mx-auto mb-4">
-                            <Mail className="w-8 h-8 text-green-500" />
-                        </div>
-                        <h2 className="text-2xl font-bold mb-2">Check your email</h2>
+                    <div className="border-y border-border py-8">
+                        <Mail className="mx-auto mb-4 h-8 w-8 text-[#7f8f69]" />
+                        <h2 className="text-2xl font-semibold mb-2">Check your email</h2>
                         <p className="text-muted-foreground mb-6">
-                            We've sent a confirmation link to <strong>{email}</strong>.
+                            We&apos;ve sent a confirmation link to <strong>{email}</strong>.
                             Click the link to activate your account.
                         </p>
                         <Link href="/login">
@@ -82,19 +79,17 @@ export default function SignupPage() {
     }
 
     return (
-        <div className="min-h-screen flex items-center justify-center p-4">
+        <div className="min-h-screen flex items-center justify-center bg-background p-4">
             <div className="w-full max-w-md">
-                {/* Logo */}
                 <div className="text-center mb-8">
                     <div className="flex items-center justify-center gap-3 mb-2">
-                        <img src="/logo.png" alt="Vector" className="w-12 h-12" />
-                        <h1 className="text-3xl font-bold">Vector</h1>
+                        <Image src="/logo.png" alt="Vector" width={48} height={48} className="grayscale" />
+                        <h1 className="text-4xl font-semibold">Vector</h1>
                     </div>
-                    <p className="text-muted-foreground">Create an account to get started.</p>
+                    <p className="editorial-label">Create your job ledger</p>
                 </div>
 
-                {/* Signup Card */}
-                <div className="glass rounded-2xl p-8 border border-border/50">
+                <div className="border-y border-border py-8">
                     <form onSubmit={handleSubmit} className="space-y-4">
                         <div className="space-y-2">
                             <Label htmlFor="email">Email</Label>
@@ -106,7 +101,7 @@ export default function SignupPage() {
                                     placeholder="you@example.com"
                                     value={email}
                                     onChange={(e) => setEmail(e.target.value)}
-                                    className="pl-10"
+                                    className="border-x-0 border-t-0 pl-10"
                                     required
                                 />
                             </div>
@@ -122,7 +117,7 @@ export default function SignupPage() {
                                     placeholder="••••••••"
                                     value={password}
                                     onChange={(e) => setPassword(e.target.value)}
-                                    className="pl-10"
+                                    className="border-x-0 border-t-0 pl-10"
                                     required
                                 />
                             </div>
@@ -138,14 +133,14 @@ export default function SignupPage() {
                                     placeholder="••••••••"
                                     value={confirmPassword}
                                     onChange={(e) => setConfirmPassword(e.target.value)}
-                                    className="pl-10"
+                                    className="border-x-0 border-t-0 pl-10"
                                     required
                                 />
                             </div>
                         </div>
 
                         {error && (
-                            <div className="p-3 rounded-lg bg-red-500/10 border border-red-500/20 text-red-500 text-sm">
+                        <div className="p-3 border border-destructive/40 bg-background text-destructive text-sm">
                                 {error}
                             </div>
                         )}
@@ -164,7 +159,7 @@ export default function SignupPage() {
 
                     <div className="relative my-6">
                         <div className="absolute inset-0 flex items-center">
-                            <div className="w-full border-t border-border/50"></div>
+                            <div className="w-full border-t border-border"></div>
                         </div>
                         <div className="relative flex justify-center text-xs uppercase">
                             <span className="bg-background px-2 text-muted-foreground">Or continue with</span>

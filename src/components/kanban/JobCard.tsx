@@ -1,14 +1,14 @@
 'use client';
 
-import { useState, useCallback } from 'react';
+import { useCallback } from 'react';
 import { useSortable } from '@dnd-kit/sortable';
 import { CSS } from '@dnd-kit/utilities';
 import { Application } from '@/types';
 import { useApplicationStore } from '@/store/applicationStore';
-import { getCompanyDomain } from '@/constants/companies';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { TagBadge } from '@/components/ui/tag-badge';
+import { CompanyLogo } from './CompanyLogo';
 import {
     Calendar,
     IndianRupee,
@@ -20,7 +20,7 @@ import {
 interface JobCardProps {
     application: Application;
     onClick?: () => void;
-    selectionMode?: boolean;
+    density?: 'comfortable' | 'compact';
 }
 
 const isStalled = (updatedAt: Date): boolean => {
@@ -56,18 +56,21 @@ const formatSalary = (min?: number | null, max?: number | null): string => {
     return '';
 };
 
-// Use Google's favicon service with accurate company domain
-const getLogoUrl = (companyName: string): string => {
-    const domain = getCompanyDomain(companyName);
-    return `https://www.google.com/s2/favicons?domain=${domain}&sz=128`;
-};
-
 const getPriorityColor = (priority: string) => {
     switch (priority) {
-        case 'HIGH': return 'bg-red-500/10 text-red-500 border-red-500/20';
-        case 'MEDIUM': return 'bg-amber-500/10 text-amber-500 border-amber-500/20';
-        case 'LOW': return 'bg-slate-500/10 text-slate-500 border-slate-500/20';
-        default: return 'bg-muted text-muted-foreground';
+        case 'HIGH': return 'bg-transparent text-[#c14f3c] border-[#c14f3c]/60';
+        case 'MEDIUM': return 'bg-transparent text-primary border-primary/60';
+        case 'LOW': return 'bg-transparent text-[#a99f91] border-border';
+        default: return 'bg-transparent text-muted-foreground border-border';
+    }
+};
+
+const getPriorityTextColor = (priority: string) => {
+    switch (priority) {
+        case 'HIGH': return 'text-[#c14f3c]';
+        case 'MEDIUM': return 'text-primary';
+        case 'LOW': return 'text-[#a99f91]';
+        default: return 'text-muted-foreground';
     }
 };
 
@@ -81,10 +84,10 @@ const getJobTypeLabel = (type: string) => {
     }
 };
 
-export function JobCard({ application, onClick, selectionMode = false }: JobCardProps) {
-    const [logoError, setLogoError] = useState(false);
+export function JobCard({ application, onClick, density = 'comfortable' }: JobCardProps) {
     const { selectedIds, toggleSelection, isSelected } = useApplicationStore();
     const isCardSelected = isSelected(application.id);
+    const isCompact = density === 'compact';
 
     const {
         attributes,
@@ -102,7 +105,6 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
 
     const stalled = isStalled(application.updatedAt);
     const salaryDisplay = formatSalary(application.salaryMin, application.salaryMax);
-    const logoUrl = getLogoUrl(application.companyName);
 
     const handleClick = useCallback((e: React.MouseEvent) => {
         // If shift key is held or we're in selection mode, toggle selection
@@ -126,26 +128,30 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
             ref={setNodeRef}
             style={style}
             onClick={handleClick}
+            aria-label={`${application.companyName}, ${application.jobTitle}, ${application.status.replaceAll('_', ' ').toLowerCase()}`}
             className={`
-        group cursor-pointer glass-card hover-glow overflow-hidden relative
-        transition-all duration-200 ease-out mb-3
-        ${isDragging ? 'opacity-80 shadow-xl scale-[1.02] rotate-1 z-50 ring-2 ring-primary/50' : ''}
-        ${stalled ? 'border-l-4 border-l-amber-500/50' : ''}
-        ${isCardSelected ? 'ring-2 ring-primary border-primary/50 bg-primary/5' : ''}
+        group relative mb-0 cursor-pointer overflow-visible rounded-none border-x-0 border-b border-t-0 bg-transparent py-0
+        transition-colors duration-200 ease-out hover:bg-secondary/10
+        ${isDragging ? 'z-50 bg-secondary/30 opacity-90' : ''}
+        ${stalled ? 'border-l-2 border-l-[#d69f57] pl-4' : ''}
+        ${isCardSelected ? 'bg-secondary/30' : ''}
       `}
             {...attributes}
             {...listeners}
         >
-            <CardContent className="p-4 relative">
+            <CardContent className={`relative p-0 ${isCompact ? 'py-3' : 'py-3.5 sm:py-5'}`}>
                 {/* Selection checkbox */}
                 <button
+                    type="button"
                     onClick={handleCheckboxClick}
+                    aria-label={isCardSelected ? `Deselect ${application.companyName}` : `Select ${application.companyName}`}
                     className={`
-                        absolute top-3 left-3 w-5 h-5 rounded-md border-2 
+                        absolute z-10 flex h-5 w-5 items-center justify-center border
                         flex items-center justify-center transition-all z-10
+                        ${isCompact ? 'right-0 top-3' : 'left-0 top-4 sm:top-5'}
                         ${isCardSelected
                             ? 'bg-primary border-primary text-primary-foreground'
-                            : 'border-border/60 bg-background/50 opacity-0 group-hover:opacity-100 hover:border-primary/50'
+                            : 'border-border bg-background opacity-0 group-hover:opacity-100 hover:border-primary'
                         }
                         ${selectedIds.length > 0 ? 'opacity-100' : ''}
                     `}
@@ -153,32 +159,48 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                     {isCardSelected && <Check className="h-3 w-3" />}
                 </button>
 
-                {/* Header */}
-                <div className={`flex items-start gap-3 mb-3 ${selectedIds.length > 0 || isCardSelected ? 'pl-7' : ''}`}>
-                    {/* Company Logo */}
-                    <div className="relative flex-shrink-0">
-                        <div className="relative w-10 h-10 rounded-lg bg-white flex items-center justify-center p-1.5 border border-border/40 shadow-sm">
-                            {!logoError ? (
-                                <img
-                                    src={logoUrl}
-                                    alt={`${application.companyName} logo`}
-                                    className="w-full h-full object-contain"
-                                    onError={() => setLogoError(true)}
-                                />
-                            ) : (
-                                <span className="text-lg font-bold text-primary">
-                                    {application.companyName.charAt(0).toUpperCase()}
-                                </span>
-                            )}
+                {isCompact ? (
+                    <div className={`min-w-0 ${selectedIds.length > 0 || isCardSelected ? 'pr-7' : ''}`}>
+                        <div className="flex min-w-0 items-start gap-2.5">
+                            <CompanyLogo companyName={application.companyName} size="sm" />
+                            <div className="min-w-0 flex-1">
+                                <h3 className="truncate font-serif text-base font-semibold leading-tight text-foreground transition-colors duration-200 group-hover:text-primary">
+                                    {application.companyName}
+                                </h3>
+                                <p className="text-wrap-safe mt-0.5 line-clamp-2 text-xs leading-snug text-muted-foreground">
+                                    {application.jobTitle}
+                                </p>
+                            </div>
+                        </div>
+
+                        <div className="mt-3 flex min-w-0 items-center justify-between gap-2">
+                            <Badge variant="secondary" className="h-5 min-w-0 px-1.5 text-[9px]">
+                                <span className="truncate">{getJobTypeLabel(application.jobType)}</span>
+                            </Badge>
+                            <span className={`editorial-label shrink-0 text-[9px] ${getPriorityTextColor(application.priority)}`}>
+                                {application.priority.toLowerCase()}
+                            </span>
+                        </div>
+
+                        <div className="mt-2 flex items-center gap-1 text-[11px] text-muted-foreground">
+                            <Calendar className="h-3 w-3 opacity-70" />
+                            <span>{formatDate(application.appliedDate || application.updatedAt)}</span>
                         </div>
                     </div>
+                ) : (
+                    <>
+                {/* Header */}
+                <div className={`grid grid-cols-[2.5rem_minmax(0,1fr)_4.25rem] items-start gap-3 pr-2 sm:grid-cols-[2.5rem_minmax(0,1fr)_auto] sm:gap-4 sm:pr-8 ${selectedIds.length > 0 || isCardSelected ? 'pl-8' : ''}`}>
+                    <div className="relative flex-shrink-0">
+                        <CompanyLogo companyName={application.companyName} size="sm" />
+                    </div>
 
-                    <div className="flex-1 min-w-0 pt-0.5">
-                        <h3 className="font-semibold text-sm truncate pr-4 text-foreground group-hover:text-primary transition-colors duration-200">
+                    <div className="min-w-0">
+                        <h3 className="truncate font-serif text-lg font-semibold leading-tight text-foreground transition-colors duration-200 group-hover:text-primary sm:text-[clamp(1.25rem,2.4vw,1.5rem)]">
                             {application.companyName}
                         </h3>
-                        <div className="flex items-center gap-1.5 mt-0.5">
-                            <p className="text-xs text-muted-foreground truncate">
+                        <div className="mt-1 flex min-w-0 items-center gap-1.5 sm:gap-2">
+                            <p className="truncate text-xs leading-normal text-muted-foreground sm:text-sm">
                                 {application.jobTitle}
                             </p>
                             {application.jobUrl && (
@@ -187,7 +209,8 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                                     target="_blank"
                                     rel="noopener noreferrer"
                                     onClick={(e) => e.stopPropagation()}
-                                    className="text-muted-foreground hover:text-primary transition-all opacity-0 group-hover:opacity-100 hover:scale-110"
+                                    aria-label={`Open job posting for ${application.companyName}`}
+                                    className="text-muted-foreground opacity-0 transition-all hover:text-primary group-hover:opacity-100"
                                 >
                                     <ExternalLink className="h-3 w-3" />
                                 </a>
@@ -195,22 +218,39 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                         </div>
                     </div>
 
-                    <GripVertical className="h-4 w-4 text-muted-foreground/20 opacity-0 group-hover:opacity-100 transition-opacity absolute top-3 right-3" />
+                    <div className="flex min-w-0 flex-col items-end gap-1 text-right">
+                        {salaryDisplay && (
+                            <div className="hidden items-center gap-1 text-sm font-medium text-[#7f8f69] sm:flex">
+                                <IndianRupee className="h-3.5 w-3.5 shrink-0" />
+                                <span className="truncate">{salaryDisplay.replace('₹', '')}</span>
+                            </div>
+                        )}
+
+                        <div className="flex items-center gap-1 text-[11px] text-muted-foreground sm:gap-1.5 sm:text-xs">
+                            <Calendar className="h-3 w-3 opacity-70 sm:h-3.5 sm:w-3.5" />
+                            <span>{formatDate(application.appliedDate || application.updatedAt)}</span>
+                        </div>
+
+                        <span className={`editorial-label max-w-full truncate text-[9px] sm:hidden ${getPriorityTextColor(application.priority)}`}>
+                            {application.priority.toLowerCase()}
+                        </span>
+                    </div>
+
+                    <GripVertical className="absolute right-0 top-6 hidden h-4 w-4 text-muted-foreground/40 opacity-0 transition-opacity group-hover:opacity-100 sm:block" />
                 </div>
 
-                {/* Tags Row */}
-                <div className="flex flex-wrap gap-1.5 mb-3">
-                    <Badge variant="secondary" className="text-[10px] h-5 px-1.5 bg-secondary text-secondary-foreground font-normal">
+                <div className={`mt-3 hidden flex-wrap gap-1.5 sm:flex ${selectedIds.length > 0 || isCardSelected ? 'pl-8' : ''} sm:ml-14`}>
+                    <Badge variant="secondary" className="h-5 px-1.5 text-[10px]">
                         {getJobTypeLabel(application.jobType)}
                     </Badge>
 
                     {application.remotePolicy && (
-                        <Badge variant="outline" className="text-[10px] h-5 px-1.5 font-normal border-border/60">
+                        <Badge variant="outline" className="h-5 px-1.5 text-[10px]">
                             {application.remotePolicy}
                         </Badge>
                     )}
 
-                    <Badge className={`text-[10px] h-5 px-1.5 border hover:bg-transparent shadow-none ${getPriorityColor(application.priority)}`}>
+                    <Badge className={`h-5 px-1.5 text-[10px] shadow-none ${getPriorityColor(application.priority)}`}>
                         {application.priority.toLowerCase()}
                     </Badge>
 
@@ -229,21 +269,8 @@ export function JobCard({ application, onClick, selectionMode = false }: JobCard
                         </span>
                     )}
                 </div>
-
-                {/* Footer Info */}
-                <div className="flex items-center justify-between pt-3 border-t border-dashed border-border/40">
-                    {salaryDisplay && (
-                        <div className="flex items-center gap-1 text-xs font-medium text-emerald-500 dark:text-emerald-400">
-                            <IndianRupee className="h-3 w-3 flex-shrink-0" />
-                            <span>{salaryDisplay.replace('₹', '')}</span> {/* Remove manual symbol if relying on icon */}
-                        </div>
-                    )}
-
-                    <div className="flex items-center gap-1.5 text-[10px] text-muted-foreground ml-auto">
-                        <Calendar className="h-3 w-3 opacity-70" />
-                        <span>{formatDate(application.appliedDate || application.updatedAt)}</span>
-                    </div>
-                </div>
+                    </>
+                )}
             </CardContent>
         </Card>
     );

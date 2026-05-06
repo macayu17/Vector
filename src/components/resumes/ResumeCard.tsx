@@ -25,6 +25,7 @@ import {
 interface ResumeCardProps {
     resume: Resume;
     onEdit: (resume: Resume) => void;
+    index?: number;
 }
 
 const formatDate = (date: Date): string => {
@@ -35,7 +36,7 @@ const formatDate = (date: Date): string => {
     });
 };
 
-export function ResumeCard({ resume, onEdit }: ResumeCardProps) {
+export function ResumeCard({ resume, onEdit, index = 0 }: ResumeCardProps) {
     const { setDefaultResume, deleteResume } = useResumeStore();
     const [isDeleting, setIsDeleting] = useState(false);
 
@@ -52,17 +53,19 @@ export function ResumeCard({ resume, onEdit }: ResumeCardProps) {
 
     return (
         <Card className={`
-            glass-card hover-glow transition-all duration-300
-            ${resume.isDefault ? 'ring-2 ring-primary/50 border-primary/30' : ''}
-        `}>
-            <CardContent className="p-4">
-                <div className="flex items-start gap-3">
+            ledger-reveal min-w-0 hover-glow transition-colors duration-200
+            ${resume.isDefault ? 'border-primary/70 bg-secondary/30' : ''}
+        `}
+            style={{ animationDelay: `${Math.min(index, 8) * 45}ms` }}
+        >
+            <CardContent className="p-4 sm:p-5">
+                <div className="grid min-w-0 grid-cols-[3rem_minmax(0,1fr)_2rem] items-start gap-3">
                     {/* Icon */}
                     <div className={`
-                        w-12 h-12 rounded-xl flex items-center justify-center
+                        flex h-12 w-12 items-center justify-center border
                         ${resume.isDefault
-                            ? 'bg-primary/20 text-primary'
-                            : 'bg-muted text-muted-foreground'
+                            ? 'border-primary text-primary'
+                            : 'border-border bg-muted text-muted-foreground'
                         }
                     `}>
                         <FileText className="h-6 w-6" />
@@ -70,69 +73,33 @@ export function ResumeCard({ resume, onEdit }: ResumeCardProps) {
 
                     {/* Content */}
                     <div className="flex-1 min-w-0">
-                        <div className="flex items-start justify-between gap-2">
-                            <div>
-                                <h3 className="font-semibold text-sm flex items-center gap-2">
+                        <div className="min-w-0">
+                            <div className="min-w-0">
+                                <h3 className="text-wrap-safe line-clamp-3 font-serif text-[clamp(1.05rem,2vw,1.25rem)] font-semibold leading-snug">
                                     {resume.name}
-                                    {resume.isDefault && (
-                                        <Badge variant="secondary" className="text-[10px] h-5 gap-1">
-                                            <Star className="h-3 w-3 fill-current" />
-                                            Default
-                                        </Badge>
-                                    )}
                                 </h3>
+                                {resume.isDefault && (
+                                    <Badge variant="secondary" className="mt-2 h-auto max-w-full gap-1 text-[10px]">
+                                        <Star className="h-3 w-3 fill-current" />
+                                        Default
+                                    </Badge>
+                                )}
                                 {resume.version && (
-                                    <p className="text-xs text-muted-foreground mt-0.5">
+                                    <p className="text-wrap-safe mt-1 text-xs text-muted-foreground">
                                         Version: {resume.version}
                                     </p>
                                 )}
                             </div>
-
-                            <DropdownMenu>
-                                <DropdownMenuTrigger asChild>
-                                    <Button variant="ghost" size="sm" className="h-8 w-8 p-0">
-                                        <MoreVertical className="h-4 w-4" />
-                                    </Button>
-                                </DropdownMenuTrigger>
-                                <DropdownMenuContent align="end">
-                                    {resume.fileUrl && (
-                                        <DropdownMenuItem asChild>
-                                            <a href={resume.fileUrl} target="_blank" rel="noopener noreferrer">
-                                                <ExternalLink className="h-4 w-4 mr-2" />
-                                                Open Link
-                                            </a>
-                                        </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem onClick={() => onEdit(resume)}>
-                                        <Edit className="h-4 w-4 mr-2" />
-                                        Edit
-                                    </DropdownMenuItem>
-                                    {!resume.isDefault && (
-                                        <DropdownMenuItem onClick={handleSetDefault}>
-                                            <Check className="h-4 w-4 mr-2" />
-                                            Set as Default
-                                        </DropdownMenuItem>
-                                    )}
-                                    <DropdownMenuItem
-                                        onClick={handleDelete}
-                                        className="text-destructive focus:text-destructive"
-                                        disabled={isDeleting}
-                                    >
-                                        <Trash2 className="h-4 w-4 mr-2" />
-                                        {isDeleting ? 'Deleting...' : 'Delete'}
-                                    </DropdownMenuItem>
-                                </DropdownMenuContent>
-                            </DropdownMenu>
                         </div>
 
                         {resume.notes && (
-                            <p className="text-xs text-muted-foreground mt-2 line-clamp-2">
+                            <p className="text-wrap-safe mt-2 line-clamp-2 text-xs text-muted-foreground">
                                 {resume.notes}
                             </p>
                         )}
 
-                        <div className="flex items-center gap-3 mt-3 pt-3 border-t border-border/40">
-                            <span className="text-[10px] text-muted-foreground">
+                        <div className="mt-3 flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1 border-t border-border pt-3">
+                            <span className="text-wrap-safe text-[10px] text-muted-foreground">
                                 Added {formatDate(resume.createdAt)}
                             </span>
                             {resume.fileUrl && (
@@ -148,6 +115,47 @@ export function ResumeCard({ resume, onEdit }: ResumeCardProps) {
                             )}
                         </div>
                     </div>
+
+                    <DropdownMenu>
+                        <DropdownMenuTrigger asChild>
+                            <Button
+                                variant="ghost"
+                                size="icon-sm"
+                                className="justify-self-end p-0"
+                                aria-label={`Open actions for ${resume.name}`}
+                            >
+                                <MoreVertical className="h-4 w-4" />
+                            </Button>
+                        </DropdownMenuTrigger>
+                        <DropdownMenuContent align="end">
+                            {resume.fileUrl && (
+                                <DropdownMenuItem asChild>
+                                    <a href={resume.fileUrl} target="_blank" rel="noopener noreferrer">
+                                        <ExternalLink className="h-4 w-4 mr-2" />
+                                        Open Link
+                                    </a>
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem onClick={() => onEdit(resume)}>
+                                <Edit className="h-4 w-4 mr-2" />
+                                Edit
+                            </DropdownMenuItem>
+                            {!resume.isDefault && (
+                                <DropdownMenuItem onClick={handleSetDefault}>
+                                    <Check className="h-4 w-4 mr-2" />
+                                    Set as Default
+                                </DropdownMenuItem>
+                            )}
+                            <DropdownMenuItem
+                                onClick={handleDelete}
+                                className="text-destructive focus:text-destructive"
+                                disabled={isDeleting}
+                            >
+                                <Trash2 className="h-4 w-4 mr-2" />
+                                {isDeleting ? 'Deleting...' : 'Delete'}
+                            </DropdownMenuItem>
+                        </DropdownMenuContent>
+                    </DropdownMenu>
                 </div>
             </CardContent>
         </Card>

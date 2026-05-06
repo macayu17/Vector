@@ -25,15 +25,15 @@ export function TagBadge({
     return (
         <span
             className={cn(
-                'inline-flex items-center gap-1 rounded-full font-medium transition-colors',
+                'inline-flex max-w-full min-w-0 items-center gap-1 rounded-sm border font-bold uppercase tracking-[0.12em] transition-colors',
                 sizeClasses[size],
                 onClick && 'cursor-pointer hover:opacity-80',
                 className
             )}
             style={{
-                backgroundColor: `${color}20`,
-                color: color,
-                border: `1px solid ${color}40`,
+                backgroundColor: 'var(--secondary)',
+                color,
+                borderColor: `${color}70`,
             }}
             onClick={onClick}
         >
@@ -41,7 +41,7 @@ export function TagBadge({
                 className="w-1.5 h-1.5 rounded-full"
                 style={{ backgroundColor: color }}
             />
-            {name}
+            <span className="min-w-0 truncate">{name}</span>
             {onRemove && (
                 <button
                     onClick={(e) => {

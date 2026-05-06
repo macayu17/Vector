@@ -20,7 +20,8 @@ export function SearchBar() {
 
     // Sync with store
     useEffect(() => {
-        setLocalQuery(filters.searchQuery);
+        const frame = requestAnimationFrame(() => setLocalQuery(filters.searchQuery));
+        return () => cancelAnimationFrame(frame);
     }, [filters.searchQuery]);
 
     const handleClear = useCallback(() => {
@@ -29,19 +30,20 @@ export function SearchBar() {
     }, [setSearchQuery]);
 
     return (
-        <div className="relative flex-1 max-w-md">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
+        <div className="relative min-w-[260px] flex-1">
+            <Search className="absolute left-0 top-1/2 h-4 w-4 -translate-y-1/2 text-muted-foreground" />
             <Input
                 type="text"
                 placeholder="Search companies, roles, notes..."
                 value={localQuery}
                 onChange={(e) => setLocalQuery(e.target.value)}
-                className="pl-9 pr-9 bg-background/50 border-border/60 focus:bg-background transition-colors"
+                className="border-x-0 border-t-0 bg-transparent pl-7 pr-8"
             />
             {localQuery && (
                 <button
                     onClick={handleClear}
-                    className="absolute right-3 top-1/2 -translate-y-1/2 text-muted-foreground hover:text-foreground transition-colors"
+                    aria-label="Clear search"
+                    className="absolute right-0 top-1/2 -translate-y-1/2 text-muted-foreground transition-colors hover:text-foreground"
                 >
                     <X className="h-4 w-4" />
                 </button>

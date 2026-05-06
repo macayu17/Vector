@@ -86,9 +86,10 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
 
     return (
         <Dialog open={open} onOpenChange={onClose}>
-            <DialogContent className="max-w-md glass-card p-6 border-t-4 border-t-primary">
+            <DialogContent className="max-w-md p-6 border-t-2 border-t-primary">
                 <DialogHeader className="mb-4">
-                    <DialogTitle className="text-xl font-bold">
+                    <p className="editorial-label">{resume ? 'Document record' : 'New document'}</p>
+                    <DialogTitle className="text-2xl font-semibold">
                         {resume ? 'Edit Resume' : 'Add Resume'}
                     </DialogTitle>
                 </DialogHeader>
@@ -101,7 +102,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                             placeholder="e.g. Software Engineer Resume"
                             value={formData.name}
                             onChange={(e) => setFormData({ ...formData, name: e.target.value })}
-                            className="bg-background border-border/60"
+                            className="bg-background/40"
                         />
                     </div>
 
@@ -112,7 +113,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                             placeholder="https://drive.google.com/file/..."
                             value={formData.fileUrl}
                             onChange={(e) => setFormData({ ...formData, fileUrl: e.target.value })}
-                            className="bg-background border-border/60"
+                            className="bg-background/40"
                         />
                         <p className="text-[10px] text-muted-foreground">
                             Link to your resume (Google Drive, Dropbox, etc.)
@@ -125,7 +126,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                             placeholder="e.g. v2.1 or March 2024"
                             value={formData.version}
                             onChange={(e) => setFormData({ ...formData, version: e.target.value })}
-                            className="bg-background border-border/60"
+                            className="bg-background/40"
                         />
                     </div>
 
@@ -135,7 +136,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                             placeholder="Details about this resume version..."
                             value={formData.notes}
                             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
-                            className="bg-background border-border/60 min-h-[80px]"
+                            className="bg-background/40 min-h-[80px]"
                         />
                     </div>
 
@@ -154,7 +155,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                         </div>
                     )}
 
-                    <div className="flex gap-3 pt-4 border-t border-border/40">
+                    <div className="flex gap-3 pt-4 border-t border-border">
                         <Button
                             type="button"
                             variant="ghost"
@@ -166,7 +167,7 @@ export function ResumeModal({ open, onClose, resume }: ResumeModalProps) {
                         </Button>
                         <Button
                             type="submit"
-                            className="flex-1 bg-primary text-white hover:bg-primary/90"
+                            className="flex-1"
                             disabled={isSubmitting}
                         >
                             {isSubmitting ? 'Saving...' : (resume ? 'Save Changes' : 'Add Resume')}
